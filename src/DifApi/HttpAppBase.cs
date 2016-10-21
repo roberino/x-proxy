@@ -14,7 +14,7 @@ namespace DifApi
             Setup(_host);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _host.Dispose();
         }

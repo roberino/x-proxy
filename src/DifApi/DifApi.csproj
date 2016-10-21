@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoInvoker.cs" />
     <Compile Include="HttpAppBase.cs" />
     <Compile Include="HttpController.cs" />
     <Compile Include="Program.cs" />

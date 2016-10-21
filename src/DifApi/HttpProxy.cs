@@ -21,70 +21,81 @@ namespace DifApi
 
         public RequestStore Storage { get { return _store; } }
 
+        public override void Dispose()
+        {
+            _store.Dispose();
+            base.Dispose();
+        }
+
         protected override void Setup(IOwinApplication host)
         {
             host.AddComponent(async c =>
             {
-                var target = _targets[0];
-
-                using (var client = new HttpClient())
-                {
-                    var fwdUri = new Uri(c.RequestUri.Scheme + Uri.SchemeDelimiter + target.Host + ":" + target.Port + c.RequestUri.PathAndQuery);
-
-                    if (fwdUri.Scheme != Uri.UriSchemeHttp) return;
-
-                    var request = new HttpRequestMessage()
-                    {
-                        RequestUri = fwdUri
-                    };
-
-                    Console.WriteLine("Fwd request headers:");
-
-                    foreach (var header in c.Request.Header.Headers)
-                    {
-                        if (header.Key.StartsWith("Content") || header.Key.StartsWith("Accept") || header.Key == "Cookie" || header.Key == "User-Agent")
-                        {
-                            request.Headers.Add(header.Key, header.Value);
-
-                            Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
-                        }
-                    }
-
-                    request.Headers.Add("Host", target.Host);
-                    request.Method = new HttpMethod(c.Request.Header.HttpVerb);
-
-                    if (c.Request.Header.ContentLength > 0)
-                    {
-                        request.Content = new ForwardedRequestContent(c);
-                    }
-
-                    var res = await client.SendAsync(request);
-
-                    Console.WriteLine("Fwd response headers:");
-
-                    foreach (var header in res.Headers)
-                    {
-                        Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
-                        c.Response.Header.Headers[header.Key] = header.Value.ToArray();
-                    }
-
-                    foreach (var header in res.Content.Headers)
-                    {
-                        Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
-                        c.Response.Header.Headers[header.Key] = header.Value.ToArray();
-                    }
-
-                    if (!c.Response.Header.Headers.ContainsKey("Content-Type"))
-                    {
-                        c.Response.Header.Headers["Content-Type"] = new[] { "application/json; charset=utf-8" };
-                    }
-                    c.Response.Header.StatusCode = (int)res.StatusCode;
-
-                    await res.Content.CopyToAsync(c.Response.Content);
-
-                    await _store.StoreRequest(c);
-                }
+                var tasks = _targets.Select(t => ForwardContext(c, t)).ToList();
+                
+                await Task.WhenAll(tasks);
             });
+        }
+
+        private async Task ForwardContext(IOwinContext context, Uri target)
+        {
+            using (var client = new HttpClient())
+            {
+                var fwdUri = new Uri(context.RequestUri.Scheme + Uri.SchemeDelimiter + target.Host + ":" + target.Port + context.RequestUri.PathAndQuery);
+
+                if (fwdUri.Scheme != Uri.UriSchemeHttp) return;
+
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = fwdUri
+                };
+
+                Console.WriteLine("Fwd request headers:");
+
+                foreach (var header in context.Request.Header.Headers)
+                {
+                    if (header.Key == "Authorization" || header.Key.StartsWith("Content") || header.Key.StartsWith("Accept") || header.Key == "Cookie" || header.Key == "User-Agent")
+                    {
+                        request.Headers.Add(header.Key, header.Value);
+
+                        Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
+                    }
+                }
+
+                request.Headers.Add("Host", target.Host);
+                request.Method = new HttpMethod(context.Request.Header.HttpVerb);
+
+                if (context.Request.Header.ContentLength > 0)
+                {
+                    request.Content = new ForwardedRequestContent(context);
+                }
+
+                var res = await client.SendAsync(request);
+
+                Console.WriteLine("Fwd response headers:");
+
+                foreach (var header in res.Headers)
+                {
+                    Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
+                    context.Response.Header.Headers[header.Key] = header.Value.ToArray();
+                }
+
+                foreach (var header in res.Content.Headers)
+                {
+                    Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
+                    context.Response.Header.Headers[header.Key] = header.Value.ToArray();
+                }
+
+                if (!context.Response.Header.Headers.ContainsKey("Content-Type"))
+                {
+                    context.Response.Header.Headers["Content-Type"] = new[] { "application/json; charset=utf-8" };
+                }
+                context.Response.Header.StatusCode = (int)res.StatusCode;
+
+                await res.Content.CopyToAsync(context.Response.Content);
+
+                await _store.StoreRequest(context);
+            }
         }
 
         private class ForwardedRequestContent : HttpContent

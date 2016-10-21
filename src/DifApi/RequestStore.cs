@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace DifApi
 {
-    class RequestStore
+    class RequestStore : IDisposable
     {
         private readonly DirectoryInfo _baseDir;
-        private readonly IDictionary<string, IDocumentIndex> _indexes;
+        private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
 
         public RequestStore(DirectoryInfo baseDir)
         {
             _baseDir = baseDir;
-            _indexes = new Dictionary<string, IDocumentIndex>();
+            _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
         }
 
         public IEnumerable<string> ListHosts()
@@ -28,28 +28,7 @@ namespace DifApi
 
         public IDocumentIndex GetIndex(string host)
         {
-            Contract.Requires(host != null);
-
-            IDocumentIndex index;
-
-            var key = host.ToLower();
-
-            if (!_indexes.TryGetValue(key, out index))
-            {
-                var file = GetIndexFile(host);
-
-                _indexes[key] = index = new TokenisedTextDocument[] { }.CreateIndex();
-
-                if (file.Exists)
-                {
-                    using (var fileStream = file.OpenRead())
-                    {
-                        index.Load(fileStream);
-                    }
-                }
-            }
-
-            return index;
+            return GetIndexInvoker(host).State;
         }
 
         public async Task StoreRequest(IOwinContext context)
@@ -71,21 +50,55 @@ namespace DifApi
                 }
             }
 
-            IDocumentIndex index;
-
             using (var fs = file.OpenRead())
             {
                 var doc = new TokenisedTextDocument(context.RequestUri.ToString(), TextExtensions.Tokenise(fs));
 
-                index = GetIndex(context.RequestUri.Host);
+                var indexInvoker = GetIndexInvoker(context.RequestUri.Host);
 
-                lock (index) index.IndexDocument(doc);
+                lock (indexInvoker)
+                {
+                    indexInvoker.State.IndexDocument(doc);
+                    indexInvoker.Trigger();
+                }
             }
-
-            SaveIndexAsync(index, context.RequestUri.Host);
         }
 
-        private void SaveIndexAsync(IDocumentIndex index, string host)
+        public void Dispose()
+        {
+            foreach(var i in _indexes)
+            {
+                i.Value.Dispose();
+            }
+        }
+
+        private AutoInvoker<IDocumentIndex> GetIndexInvoker(string host)
+        {
+            Contract.Requires(host != null);
+
+            AutoInvoker<IDocumentIndex> indexInvoker;
+
+            var key = host.ToLower();
+
+            if (!_indexes.TryGetValue(key, out indexInvoker))
+            {
+                var file = GetIndexFile(host);
+
+                _indexes[key] = indexInvoker = new AutoInvoker<IDocumentIndex>(i => SaveIndex(i, host), new TokenisedTextDocument[] { }.CreateIndex());
+
+                if (file.Exists)
+                {
+                    using (var fileStream = file.OpenRead())
+                    {
+                        indexInvoker.State.Load(fileStream);
+                    }
+                }
+            }
+
+            return indexInvoker;
+        }
+
+        private void SaveIndex(IDocumentIndex index, string host)
         {
             var state = new
             {
@@ -93,24 +106,19 @@ namespace DifApi
                 Host = host
             };
 
-            ThreadPool.QueueUserWorkItem(s =>
             {
-                if (ReferenceEquals(s, state))
+                var indexFile = GetIndexFile(state.Host);
+
+                lock (state.Index)
                 {
-                    var indexFile = GetIndexFile(state.Host);
-
-                    lock (state.Index)
+                    using (var indexStream = indexFile.OpenWrite())
                     {
-                        using (var indexStream = indexFile.OpenWrite())
-                        {
-                            state.Index.Save(indexStream);
-                        }
+                        state.Index.Save(indexStream);
                     }
-
-                    Console.WriteLine("Index updated - " + host);
                 }
-            },
-            state);
+
+                Console.WriteLine("Index updated - " + host);
+            }
         }
 
         public Stream RetrieveRequest(Uri uri)

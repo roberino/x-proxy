@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace DifApi
 {
@@ -7,12 +8,12 @@ namespace DifApi
         static void Main(string[] args)
         {
             var proxyUri = new Uri(args[0]);
-            var targetUri = new Uri(args[1]);
+            var targetUris = args.Skip(1).Where(a => a.StartsWith("http://")).Select(a => new Uri(a)).ToArray();
             var controlUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":9373");
 
             var store = new RequestStore(new System.IO.DirectoryInfo(Environment.CurrentDirectory));
 
-            using (var proxy = new HttpProxy(proxyUri, new[] { targetUri }, store))
+            using (var proxy = new HttpProxy(proxyUri, targetUris, store))
             using (var control = new HttpController(controlUri, proxy))
             {
                 Console.WriteLine("Binding to {0}", proxyUri);
