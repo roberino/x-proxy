@@ -31,7 +31,8 @@ namespace DifApi
         {
             host.AddComponent(async c =>
             {
-                var tasks = _targets.Select(t => ForwardContext(c, t)).ToList();
+                int i = 0;
+                var tasks = _targets.Select(t => ForwardContext((i++ > 0) ? c.Clone(true) : c, t)).ToList();
                 
                 await Task.WhenAll(tasks);
             });

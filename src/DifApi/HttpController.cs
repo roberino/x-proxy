@@ -9,6 +9,7 @@ namespace DifApi
     class HttpController : HttpAppBase
     {
         private readonly HttpProxy _proxy;
+        private IHttpApi _api;
 
         public HttpController(Uri hostAddress, HttpProxy proxy) : base(hostAddress)
         {
@@ -19,38 +20,19 @@ namespace DifApi
         {
             base.Setup(host);
 
-            //var router = new RoutingHandler();
+            _api = _host.CreateHttpApi(new JsonSerialiser());
 
-            //var baseRoute = host.BaseEndpoint.CreateRoute("/");
-
-            host.AddComponent(c =>
-            {
-                if (c.RequestUri.Scheme != Uri.UriSchemeHttp) return Task.FromResult(0);
-
-                var path = c.RequestUri.PathAndQuery.Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray();
-
-                if (path.Any())
+            _api.Bind("/{host}?search=x", Verb.Get, r => r.Request.Header.Query.ContainsKey("search"))
+                .To(new
                 {
-                    var query = c.RequestUri.Query.Length > 0 ? c.RequestUri.Query.Substring(1) : string.Empty;
-                    var isSearch = query.Contains("search=");
-
-                    if (isSearch)
-                    {
-                        var results = _proxy.Storage.GetIndex(path.First().Split('?').First()).Search(query.Split('=').Last().ToLower());
-
-                        Write(c, results);
-                    }
-                    else
-                    {
-                    }
-                }
-                else
+                    host = string.Empty,
+                    search = string.Empty
+                }, x =>
                 {
-                    Write(c, _proxy.Storage.ListHosts());
-                }
-                
-                return Task.FromResult(0);
-            });
+                    var results = _proxy.Storage.GetIndex(x.host).Search(x.search);
+
+                    return Task.FromResult(results);
+                });
         }
 
         private static void Write(IOwinContext context, object data)

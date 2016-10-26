@@ -54,6 +54,8 @@
     <Compile Include="AutoInvoker.cs" />
     <Compile Include="HttpAppBase.cs" />
     <Compile Include="HttpController.cs" />
+    <Compile Include="HttpControllerX.cs" />
+    <Compile Include="JsonSerialiser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HttpProxy.cs" />
