@@ -29,6 +29,11 @@ namespace DifApi
             if (_isDirty) _timer.Enabled = true;
         }
 
+        public void Run()
+        {
+            OnFire();
+        }
+
         private void OnFire(object sender, ElapsedEventArgs e)
         {
             OnFire();

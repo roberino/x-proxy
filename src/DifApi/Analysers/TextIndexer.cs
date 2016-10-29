@@ -1,24 +1,38 @@
-﻿using LinqInfer.Data.Remoting;
-using LinqInfer.Text;
+﻿using LinqInfer.Text;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using LinqInfer.Data.Remoting;
 
-namespace DifApi
+namespace DifApi.Analysers
 {
-    class RequestStore : IDisposable
+    class TextIndexer : IRequestAnalyser, IHasHttpInterface
     {
         private readonly DirectoryInfo _baseDir;
         private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
 
-        public RequestStore(DirectoryInfo baseDir)
+        public TextIndexer(DirectoryInfo baseDir)
         {
             _baseDir = baseDir;
             _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
+        }
+
+        public Task<Stream> Run(RequestContext requestContext)
+        {
+            var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), TextExtensions.Tokenise(requestContext.RequestBlob));
+
+            var indexInvoker = GetIndexInvoker(requestContext.OriginUrl.Host);
+
+            lock (indexInvoker)
+            {
+                indexInvoker.State.IndexDocument(doc);
+                indexInvoker.Trigger();
+            }
+
+            return Task.FromResult(requestContext.RequestBlob);
         }
 
         public IEnumerable<string> ListHosts()
@@ -31,42 +45,24 @@ namespace DifApi
             return GetIndexInvoker(host).State;
         }
 
-        public async Task StoreRequest(IOwinContext context)
+        public void Register(IHttpApi api)
         {
-            var file = GetPath(context.RequestUri);
-
-            if (!file.Directory.Exists)
-            {
-                file.Directory.Create();
-            }
-
-            using (var mutex = new Mutex(true, file.Name))
-            {
-                mutex.WaitOne(5000);
-
-                using (var fs = file.OpenWrite())
+            api.Bind("/{host}?search=x", Verb.Get, r => r.RequestUri.Scheme == Uri.UriSchemeHttp)
+                .To(new
                 {
-                    await context.WriteTo(fs);
-                }
-            }
-
-            using (var fs = file.OpenRead())
-            {
-                var doc = new TokenisedTextDocument(context.RequestUri.ToString(), TextExtensions.Tokenise(fs));
-
-                var indexInvoker = GetIndexInvoker(context.RequestUri.Host);
-
-                lock (indexInvoker)
+                    host = string.Empty,
+                    search = string.Empty
+                }, x =>
                 {
-                    indexInvoker.State.IndexDocument(doc);
-                    indexInvoker.Trigger();
-                }
-            }
+                    var results = GetIndex(x.host).Search(x.search);
+
+                    return Task.FromResult(results);
+                });
         }
 
         public void Dispose()
         {
-            foreach(var i in _indexes)
+            foreach (var i in _indexes)
             {
                 i.Value.Dispose();
             }
@@ -121,42 +117,9 @@ namespace DifApi
             }
         }
 
-        public Stream RetrieveRequest(Uri uri)
-        {
-            var file = GetPath(uri);
-
-            if (file.Exists)
-            {
-                return file.OpenRead();
-            }
-
-            return Stream.Null;
-        }
-
         private FileInfo GetIndexFile(string host)
         {
             return new FileInfo(Path.Combine(_baseDir.FullName, host, "index.dat"));
-        }
-
-        private FileInfo GetPath(Uri uri)
-        {
-            var paths = uri.PathAndQuery.Split('/');
-            var invalidNameChars = Path.GetInvalidFileNameChars();
-            var invalidPathChars = Path.GetInvalidPathChars();
-            var isExtensionless = !paths.Last().Contains(".");
-
-            var cleanPathArray = paths.Take(paths.Length - (isExtensionless ? 0 : 1))
-                .Select(p =>
-                    new string(p.Select(c => invalidPathChars.Contains(c) ? '_' : c).ToArray()));
-
-            var name = !isExtensionless ? new string(paths.Last().Select(c => invalidNameChars.Contains(c) ? '_' : c).ToArray()) : "index";
-
-            var path = Path.Combine(
-             new [] { _baseDir.FullName, uri.Host }
-            .Concat(cleanPathArray)
-            .Concat(new[] { name + ".req" }).ToArray());
-
-            return new FileInfo(path);
         }
     }
 }

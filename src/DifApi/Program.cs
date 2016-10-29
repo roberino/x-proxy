@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DifApi.Analysers;
+using System;
+using System.IO;
 using System.Linq;
 
 namespace DifApi
@@ -11,21 +13,26 @@ namespace DifApi
             var targetUris = args.Skip(1).Where(a => a.StartsWith("http://")).Select(a => new Uri(a)).ToArray();
             var controlUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":9373");
 
-            var store = new RequestStore(new System.IO.DirectoryInfo(Environment.CurrentDirectory));
+            var baseDir = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "data"));
 
-            using (var proxy = new HttpProxy(proxyUri, targetUris, store))
-            using (var control = new HttpController(controlUri, proxy))
+            using (var proxy = new HttpProxy(proxyUri, targetUris))
             {
-                Console.WriteLine("Binding to {0}", proxyUri);
-                Console.WriteLine("Control via {0}", controlUri);
+                proxy.AnalyserEngine.Register(new RequestStore(baseDir));
+                proxy.AnalyserEngine.Register(new TextIndexer(baseDir));
 
-                proxy.Start();
-                control.Start();
+                using (var control = new HttpController(controlUri, proxy))
+                {
+                    Console.WriteLine("Binding to {0}", proxyUri);
+                    Console.WriteLine("Control via {0}", controlUri);
 
-                Console.ReadKey();
+                    proxy.Start();
+                    control.Start();
 
-                proxy.Stop();
-                control.Stop();
+                    Console.ReadKey();
+
+                    proxy.Stop();
+                    control.Stop();
+                }
             }
         }
     }

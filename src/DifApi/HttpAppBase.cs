@@ -7,11 +7,11 @@ namespace DifApi
     {
         protected readonly IOwinApplication _host;
 
+        bool _setup;
+
         public HttpAppBase(Uri hostAddress)
         {
             _host = hostAddress.CreateHttpApplication();
-
-            Setup(_host);
         }
 
         public virtual void Dispose()
@@ -21,6 +21,7 @@ namespace DifApi
 
         public void Start()
         {
+            if (!_setup) Setup(_host);
             _host.Start();
         }
 
@@ -31,6 +32,7 @@ namespace DifApi
 
         protected virtual void Setup(IOwinApplication host)
         {
+            _setup = true;
         }
     }
 }

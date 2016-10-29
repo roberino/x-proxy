@@ -1,8 +1,7 @@
-﻿using System;
-using LinqInfer.Data.Remoting;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using LinqInfer.Data.Remoting;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DifApi
 {
@@ -22,30 +21,16 @@ namespace DifApi
 
             _api = _host.CreateHttpApi(new JsonSerialiser());
 
-            _api.Bind("/{host}?search=x", Verb.Get, r => r.Request.Header.Query.ContainsKey("search"))
-                .To(new
-                {
-                    host = string.Empty,
-                    search = string.Empty
-                }, x =>
-                {
-                    var results = _proxy.Storage.GetIndex(x.host).Search(x.search);
+            foreach (var analyserIFace in _proxy.AnalyserEngine.Analysers.Where(a => a is IHasHttpInterface).Cast<IHasHttpInterface>())
+            {
+                analyserIFace.Register(_api);
+            }
 
-                    return Task.FromResult(results);
-                });
-        }
-
-        private static void Write(IOwinContext context, object data)
-        {
-            var jsonWriter = new JsonTextWriter(context.Response.CreateTextResponse());
-
-            var sz = new JsonSerializer();
-
-            sz.Serialize(jsonWriter, data);
-
-            jsonWriter.Flush();
-
-            context.Response.Header.MimeType = "application/json";
+            _api.AddErrorHandler((c, e) =>
+            {
+                c.Response.CreateTextResponse().Write(e.Message);
+                return Task.FromResult(true);
+            });
         }
     }
 }

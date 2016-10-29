@@ -5,27 +5,22 @@ using System.Net.Http;
 using System.IO;
 using System.Threading.Tasks;
 using System.Net;
+using System.Diagnostics;
 
 namespace DifApi
 {
     class HttpProxy : HttpAppBase
     {
         private readonly Uri[] _targets;
-        private readonly RequestStore _store;
+        private readonly RequestAnalysisEngine _analysers;
 
-        public HttpProxy(Uri hostAddress, Uri[] targets, RequestStore storage) : base(hostAddress)
+        public HttpProxy(Uri hostAddress, Uri[] targets) : base(hostAddress)
         {
             _targets = targets;
-            _store = storage;
+            _analysers = new RequestAnalysisEngine();
         }
 
-        public RequestStore Storage { get { return _store; } }
-
-        public override void Dispose()
-        {
-            _store.Dispose();
-            base.Dispose();
-        }
+        public RequestAnalysisEngine AnalyserEngine { get { return _analysers; } }
 
         protected override void Setup(IOwinApplication host)
         {
@@ -40,6 +35,10 @@ namespace DifApi
 
         private async Task ForwardContext(IOwinContext context, Uri target)
         {
+            var sw = new Stopwatch();
+
+            sw.Start();
+
             using (var client = new HttpClient())
             {
                 var fwdUri = new Uri(context.RequestUri.Scheme + Uri.SchemeDelimiter + target.Host + ":" + target.Port + context.RequestUri.PathAndQuery);
@@ -91,11 +90,23 @@ namespace DifApi
                 {
                     context.Response.Header.Headers["Content-Type"] = new[] { "application/json; charset=utf-8" };
                 }
+
                 context.Response.Header.StatusCode = (int)res.StatusCode;
 
-                await res.Content.CopyToAsync(context.Response.Content);
+                sw.Stop();
 
-                await _store.StoreRequest(context);
+                await res.Content.CopyToAsync(context.Response.Content);
+                
+                var requestBlob = new MemoryStream();
+
+                await context.WriteTo(requestBlob);
+
+                requestBlob.Position = 0;
+
+                await _analysers.EnqueueRequest(new RequestContext(fwdUri, context, requestBlob)
+                {
+                    Elapsed = sw.Elapsed
+                });
             }
         }
 
