@@ -8,20 +8,19 @@ namespace DifApi
     {
         private RequestContext _parent;
 
-        public RequestContext(Uri originUrl, IOwinContext context, Stream requestBlob)
+        internal RequestContext(Guid id, Uri originUrl, IOwinContext context, Stream requestBlob)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             OwinContext = context;
             RequestBlob = requestBlob;
             OriginUrl = originUrl;
         }
 
-        public RequestContext Chain(Stream blob)
+        internal RequestContext Chain(Stream blob)
         {
-            return new RequestContext(OriginUrl, OwinContext, blob)
+            return new RequestContext(Id, OriginUrl, OwinContext, blob)
             {
                 Elapsed = Elapsed,
-                Id = Id,
                 _parent = this
             };
         }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LinqInfer.Data.Remoting;
+using System.Xml;
 
 namespace DifApi.Analysers
 {
@@ -13,7 +14,7 @@ namespace DifApi.Analysers
     {
         private readonly DirectoryInfo _baseDir;
         private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
-        private readonly TextWriter _logger;
+        private readonly HttpLogger _logger;
 
         public RequestStore(DirectoryInfo baseDir)
         {
@@ -21,14 +22,20 @@ namespace DifApi.Analysers
 
             if (!_baseDir.Exists) _baseDir.Create();
 
-             _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
-            _logger = new StreamWriter(new FileStream(Path.Combine(baseDir.FullName, "index.log"), FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+            _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
+            _logger = new HttpLogger(_baseDir);
         }
 
         public void Register(IHttpApi api)
         {
             api.Bind("/", Verb.Get)
                 .To(false, x => Task.FromResult(ListHosts().ToList()));
+
+            api.Bind("/logs/{x}", Verb.Get)
+                .To((long)0, x => _logger.GetRecentRequests(x));
+
+            api.Bind("/tree/{x}", Verb.Get)
+                .To((long)0, x => _logger.GetRequestTree(x));
         }
 
         public IEnumerable<string> ListHosts()
@@ -55,16 +62,7 @@ namespace DifApi.Analysers
                 }
             }
 
-            var head = requestContext.OwinContext.Request.Header;
-            var res = requestContext.OwinContext.Response;
-
-            _logger.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", 
-                requestContext.Id,
-                requestContext.Elapsed,
-                head.HttpVerb,
-                requestContext.OriginUrl,
-                head.ContentLength,
-                res.Header.Headers["Content-Length"]));
+            await _logger.LogRequest(requestContext);
 
             return requestContext.RequestBlob;
         }

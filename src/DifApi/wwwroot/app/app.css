@@ -1,0 +1,9 @@
+/* app css stylesheet */
+
+li.abn-tree-row.warning a {
+    color: #ff6a00;
+}
+
+li.abn-tree-row.danger a {
+    color: #ff0000;
+}

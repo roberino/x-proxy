@@ -26,14 +26,15 @@ namespace DifApi
         {
             host.AddComponent(async c =>
             {
+                var id = Guid.NewGuid();
                 int i = 0;
-                var tasks = _targets.Select(t => ForwardContext((i++ > 0) ? c.Clone(true) : c, t)).ToList();
+                var tasks = _targets.Select(t => ForwardContext(id, (i++ > 0) ? c.Clone(true) : c, t)).ToList();
                 
                 await Task.WhenAll(tasks);
             });
         }
 
-        private async Task ForwardContext(IOwinContext context, Uri target)
+        private async Task ForwardContext(Guid id, IOwinContext context, Uri target)
         {
             var sw = new Stopwatch();
 
@@ -103,7 +104,7 @@ namespace DifApi
 
                 requestBlob.Position = 0;
 
-                await _analysers.EnqueueRequest(new RequestContext(fwdUri, context, requestBlob)
+                await _analysers.EnqueueRequest(new RequestContext(id, fwdUri, context, requestBlob)
                 {
                     Elapsed = sw.Elapsed
                 });
