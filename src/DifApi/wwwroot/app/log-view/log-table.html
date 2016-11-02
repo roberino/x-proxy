@@ -1,12 +1,15 @@
 
 <div ng-show="source1">
     <h2>Compare {{compareStatus}}</h2>
+    <button class="btn btn-warning pull-right" ng-click="closeCompare()"><span class="glyphicon glyphicon-remove"> </span> Close</button>
     <p><strong>Source 1: {{source1.url}}</strong></p>
     <p><strong>Source 2: {{source2.url}}</strong></p>
     <div style="overflow-y : scroll; max-height: 300px">
         <source-diff id="diff1" text1="source1.content" text2="source2.content"></source-diff>
     </div>
 </div>
+
+<h2>Showing {{logs.items.length}} records out of {{logs.totalSize / 1024 | number: 2}}Kb of data</h2>
 
 <table class="table table-striped">
     <thead>

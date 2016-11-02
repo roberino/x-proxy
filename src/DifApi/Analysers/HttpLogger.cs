@@ -9,16 +9,27 @@ namespace DifApi.Analysers
 {
     class HttpLogger : IRequestAnalyser, IHasHttpInterface, IDisposable
     {
-        private const int DefaultReadSize = 4096 * 4;
+        private const int DefaultReadSize = 4096 * 6;
         private readonly TextWriter _logger;
         private readonly DirectoryInfo _baseDir;
+        private readonly FileInfo _logFile;
 
         public HttpLogger(DirectoryInfo baseDir)
         {
             if (!baseDir.Exists) baseDir.Create();
 
             _baseDir = baseDir;
-            _logger = new StreamWriter(new FileStream(Path.Combine(baseDir.FullName, "index.log"), FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+
+            _logFile = new FileInfo(Path.Combine(_baseDir.FullName, "index.log"));
+            _logger = new StreamWriter(new FileStream(_logFile.FullName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+        }
+
+        public long LogFileSize
+        {
+            get
+            {
+                return _logFile.Length;
+            }
         }
 
         public void Register(IHttpApi api)
@@ -101,7 +112,7 @@ namespace DifApi.Analysers
             var entries = new List<LogEntry>(256);
             long startPos = 0;
 
-            using (var stream = new FileStream(Path.Combine(_baseDir.FullName, "index.log"), FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
+            using (var stream = new FileStream(_logFile.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
                 if (position > 0 && position < stream.Length)
                 {
@@ -137,7 +148,12 @@ namespace DifApi.Analysers
                 }
             }
 
-            return new ResourceList<LogEntry>(entries, startPos);
+            var resource = new ResourceList<LogEntry>(entries, startPos)
+            {
+                TotalSize = _logFile.Length
+            };
+
+            return resource;
         }
 
         public async Task LogRequest(RequestContext requestContext)

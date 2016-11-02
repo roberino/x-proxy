@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace DifApi
 {
-    class HttpProxy : HttpAppBase
+    public class HttpProxy : HttpAppBase
     {
         private readonly Uri[] _targets;
         private readonly RequestAnalysisEngine _analysers;

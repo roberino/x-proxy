@@ -82,7 +82,10 @@ namespace DifApi.Analysers
                 }
             }
 
-            return new ResourceList<LogEntry>(allResults.OrderByDescending(r => r.Order));
+            return new ResourceList<LogEntry>(allResults.OrderByDescending(r => r.Order))
+            {
+                TotalSize = _logger.LogFileSize
+            };
         }
 
         public void Dispose()

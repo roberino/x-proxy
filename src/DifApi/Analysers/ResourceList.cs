@@ -18,5 +18,6 @@ namespace DifApi.Analysers
 
         public IList<T> Items { get; private set; }
         public long StartPosition { get; private set; }
+        public long TotalSize { get; internal set; }
     }
 }

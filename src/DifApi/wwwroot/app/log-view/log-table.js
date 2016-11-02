@@ -15,6 +15,12 @@ angular.module('xproxy.logs.table', ['ngRoute'])
     var query = $routeParams.query;
     var sourceNum = 0;
 
+    $scope.closeCompare = function () {
+        sourceNum = 0;
+        $scope.source1 = null;
+        $scope.source2 = null;
+    };
+
     $scope.loadSource = function (logEntry) {
         var sn = sourceNum;
         sourceNum++;

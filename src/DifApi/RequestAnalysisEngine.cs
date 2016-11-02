@@ -12,7 +12,7 @@ namespace DifApi
         private readonly AutoInvoker<Queue<RequestContext>> _worker;
         private readonly IList<IRequestAnalyser> _analysers;
 
-        public RequestAnalysisEngine(int maxQueueSize = 100)
+        internal RequestAnalysisEngine(int maxQueueSize = 100)
         {
             _maxQueueSize = maxQueueSize;
             _worker = new AutoInvoker<Queue<RequestContext>>(Execute, new Queue<RequestContext>());

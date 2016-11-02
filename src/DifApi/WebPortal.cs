@@ -2,15 +2,14 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace DifApi
 {
-    class WebApp : HttpAppBase
+    public class WebPortal : HttpAppBase
     {
         private readonly Assembly _asm;
 
-        public WebApp(Uri host) : base(host)
+        public WebPortal(Uri host) : base(host)
         {
             _asm = Assembly.GetExecutingAssembly();
         }

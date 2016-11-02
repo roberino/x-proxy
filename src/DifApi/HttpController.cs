@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DifApi
 {
-    class HttpController : HttpAppBase
+    public class HttpController : HttpAppBase
     {
         private readonly HttpProxy _proxy;
         private IHttpApi _api;

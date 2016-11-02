@@ -1,5 +1,4 @@
-﻿using DifApi.Analysers;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 
@@ -15,32 +14,14 @@ namespace DifApi
             var uiUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":8080");
 
             var baseDir = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "data"));
-            var logger = new HttpLogger(baseDir);
 
-            using (var proxy = new HttpProxy(proxyUri, targetUris))
+            using (var startup = new Startup(baseDir, proxyUri, targetUris, controlUri, uiUri))
             {
-                proxy.AnalyserEngine.Register(new RequestStore(baseDir, logger));
-                proxy.AnalyserEngine.Register(logger);
-                proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
+                startup.Start();
 
-                using (var app = new WebApp(uiUri))
-                using (var control = new HttpController(controlUri, proxy))
-                {
-                    control.AllowOrigin(uiUri);
+                Console.ReadKey();
 
-                    Console.WriteLine("Binding to {0}", proxyUri);
-                    Console.WriteLine("Control via {0}", controlUri);
-
-                    proxy.Start();
-                    control.Start();
-                    app.Start();
-
-                    Console.ReadKey();
-
-                    proxy.Stop();
-                    control.Stop();
-                    app.Stop();
-                }
+                startup.Stop();
             }
         }
     }

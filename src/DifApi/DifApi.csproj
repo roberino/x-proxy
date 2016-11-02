@@ -69,14 +69,14 @@
     <Compile Include="RequestAnalysisEngine.cs" />
     <Compile Include="RequestContext.cs" />
     <Compile Include="Analysers\RequestStore.cs" />
-    <Compile Include="WebApp.cs" />
+    <Compile Include="Startup.cs" />
+    <Compile Include="WebPortal.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="wwwroot\.bowerrc" />
     <None Include="wwwroot\.jshintrc" />
-    <None Include="wwwroot\.travis.yml" />
     <None Include="wwwroot\app\bower_components\angular-loader\.bower.json" />
     <None Include="wwwroot\app\bower_components\angular-loader\angular-loader.min.js.map" />
     <None Include="wwwroot\app\bower_components\angular-loader\bower.json" />
@@ -138,7 +138,6 @@
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="wwwroot\bower.json" />
-    <None Include="wwwroot\LICENSE" />
     <None Include="wwwroot\package.json" />
     <None Include="wwwroot\README.md" />
   </ItemGroup>
