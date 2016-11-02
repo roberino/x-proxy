@@ -19,6 +19,7 @@
     <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
     <script src="lib/jquery-2.1.1.min.js"></script>
     <script src="lib/bootstrap-3-3-7-dist/js/bootstrap.min.js"></script>
+    <script src="lib/diff-match-patch/diff_match_patch.js"></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -27,6 +28,17 @@
                 X-Proxy
                 <small>API Analysis</small>
             </h1>
+
+            <div class="row" ng-controller="Search">
+                <div class="col-md-offset-4 col-md-4">
+                    <div class="input-group">
+                        <input ng-model="query.text" type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button ng-click="searchGo()" class="btn btn-default" type="button">Find</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
         <ul class="nav navbar-nav hidden-print">
             <li class="dropdown" data-nav="experts">
@@ -35,8 +47,8 @@
                     Logs <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#!/view1">Tree view</a></li>
-                    <li><a href="#!/view2">Table view</a></li>
+                    <li><a href="#!/tree">Tree view</a></li>
+                    <li><a href="#!/logs">Table view</a></li>
                 </ul>
             </li>
         </ul>
@@ -59,12 +71,11 @@
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="app.js"></script>
-    <script src="view1/view1.js"></script>
-    <script src="view2/view2.js"></script>
-    <script src="components/version/version.js"></script>
+    <script src="tree-view/tree-view.js"></script>
+    <script src="log-view/log-table.js"></script>
     <script src="components/log-explore/log-explorer.js"></script>
-    <script src="components/version/version-directive.js"></script>
-    <script src="components/version/interpolate-filter.js"></script>
+    <script src="components/diff/diff-directive.js"></script>
+    <script src="components/search/search.js"></script>
     <script src="lib/tree/abn_tree_directive.js"></script>
 </body>
 </html>

@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('xproxy.view1', ['ngRoute'])
+angular.module('xproxy.logs.tree', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {
-    templateUrl: 'view1/view1.html',
-    controller: 'View1Ctrl'
+  $routeProvider.when('/tree', {
+    templateUrl: 'tree-view/tree-view.html',
+    controller: 'TreeViewCtl'
   });
 }])
 
-.controller('View1Ctrl', ['$scope', 'xproxy.logexplorer.factory', function ($scope, logexplorer) {
+.controller('TreeViewCtl', ['$scope', 'xproxy.logexplorer.service', function ($scope, logexplorer) {
     $scope.tree = [];
 
     logexplorer.loadTree(function (data) {
@@ -19,13 +19,19 @@ angular.module('xproxy.view1', ['ngRoute'])
     $scope.treeSelect = function (branch) {
         $scope.currentNode = branch;
     };
-    
-    function translateNode(node) {
 
-        // if (node.isLeaf) return node.path;
+    $scope.getPathRouteQuery = function (branch) {
+        if (branch && branch.data)
+            return "path-" + window.btoa(branch.data.fullPath);
+    };
+    
+    function translateNode(node, depth) {
+
+        depth = depth || 0;
 
         var treeNode = {
             data: {
+                fullPath: node.fullPath,
                 averageSizeKb: node.averageSizeKb,
                 requestCount: node.requestCount,
                 maxElapsed: node.maxElapsed,
@@ -50,7 +56,8 @@ angular.module('xproxy.view1', ['ngRoute'])
         for (var key in node.children) {
             if (node.children.hasOwnProperty(key)) {
                 var child = node.children[key];
-                treeNode.children.push(translateNode(child));
+                var tchild = translateNode(child, depth + 1);
+                treeNode.children.push(tchild);
             }
         }
 

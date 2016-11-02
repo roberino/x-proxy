@@ -6,6 +6,13 @@ namespace DifApi.Analysers
 {
     public class LogEntry
     {
+        public LogEntry SetOrder(float order)
+        {
+            Order = order;
+            return this;
+        }
+
+        public float Order { get; private set; }
         public string RemoteAddress { get; private set; }
         public string Id { get; private set; }
         public DateTime Date { get; private set; }
@@ -13,6 +20,28 @@ namespace DifApi.Analysers
         public string HttpVerb { get; private set; }
         public int Status { get; private set; }
         public Uri OriginUrl { get; private set; }
+        public string OriginPath
+        {
+            get
+            {
+                if (OriginUrl != null)
+                {
+                    return OriginUrl.PathAndQuery.Split('?').FirstOrDefault();
+                }
+                return null;
+            }
+        }
+        public string OriginHost
+        {
+            get
+            {
+                if (OriginUrl != null)
+                {
+                    return OriginUrl.Host;
+                }
+                return null;
+            }
+        }
         public long RequestSize { get; private set; }
         public long ResponseSize { get; private set; }
         public double ElapsedMilliseconds { get { return Elapsed.TotalMilliseconds; } }

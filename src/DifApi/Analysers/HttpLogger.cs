@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LinqInfer.Data.Remoting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace DifApi.Analysers
 {
-    class HttpLogger : IDisposable
+    class HttpLogger : IRequestAnalyser, IHasHttpInterface, IDisposable
     {
+        private const int DefaultReadSize = 4096 * 4;
         private readonly TextWriter _logger;
         private readonly DirectoryInfo _baseDir;
 
@@ -17,6 +19,37 @@ namespace DifApi.Analysers
 
             _baseDir = baseDir;
             _logger = new StreamWriter(new FileStream(Path.Combine(baseDir.FullName, "index.log"), FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+        }
+
+        public void Register(IHttpApi api)
+        {
+            api.Bind("/", Verb.Get)
+                .To(false, x => Task.FromResult(ListHosts().ToList()));
+
+            api.Bind("/logs/list/{x}", Verb.Get)
+                .To((long)0, x => GetRecentRequests(x));
+
+            api.Bind("/logs/url-filter/{pos}?path=y", Verb.Get)
+                .To(new
+                {
+                    pos = (long)0,
+                    path = string.Empty
+                }, x => GetRequestsByPartialUrl(x.path, x.pos));
+
+            api.Bind("/logs/tree/{x}", Verb.Get)
+                .To((long)0, x => GetRequestTree(x));
+        }
+
+        public async Task<Stream> Run(RequestContext requestContext)
+        {
+            await LogRequest(requestContext);
+
+            return requestContext.RequestBlob;
+        }
+
+        public IEnumerable<string> ListHosts()
+        {
+            return _baseDir.GetDirectories().Select(d => d.Name);
         }
 
         public async Task<RequestNode> GetRequestTree(long position)
@@ -56,15 +89,29 @@ namespace DifApi.Analysers
             return root;
         }
 
-        public async Task<ResourceList<LogEntry>> GetRecentRequests(long position = -1)
+        public Task<ResourceList<LogEntry>> GetRequestsByPartialUrl(string urlPart, long position = -1)
         {
+            return GetRecentRequests(position, e => e.OriginUrl.ToString().Contains(urlPart));
+        }
+
+        public async Task<ResourceList<LogEntry>> GetRecentRequests(long position = -1, Func<LogEntry, bool> filter = null)
+        {
+            if (filter == null) filter = _ => true;
+
             var entries = new List<LogEntry>(256);
             long startPos = 0;
 
             using (var stream = new FileStream(Path.Combine(_baseDir.FullName, "index.log"), FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
-                if (stream.Length - 4096 > 0)
-                    stream.Position = startPos = stream.Length - 4096;
+                if (position > 0 && position < stream.Length)
+                {
+                    stream.Position = startPos = position;
+                }
+                else
+                {
+                    if (stream.Length - DefaultReadSize > 0)
+                        stream.Position = startPos = stream.Length - DefaultReadSize;
+                }
 
                 using (var reader = new StreamReader(stream))
                 {
@@ -78,7 +125,9 @@ namespace DifApi.Analysers
 
                         try
                         {
-                            entries.Add(LogEntry.Parse(next));
+                            var entry = LogEntry.Parse(next);
+
+                            if (filter(entry)) entries.Add(entry);
                         }
                         catch (Exception ex)
                         {

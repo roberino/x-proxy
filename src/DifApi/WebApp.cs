@@ -63,6 +63,11 @@ namespace DifApi
                     return "application/json";
                 case "html":
                     return "text/html";
+                case "woff":
+                case "woff2":
+                    return "application/font-woff";
+                case "ttf":
+                    return "application/font-sfnt";
                 default:
                     return "text/plain";
             }

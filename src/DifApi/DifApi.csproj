@@ -55,6 +55,7 @@
     <Compile Include="Analysers\LogEntry.cs" />
     <Compile Include="Analysers\RequestNode.cs" />
     <Compile Include="Analysers\ResourceList.cs" />
+    <Compile Include="Analysers\SourceFile.cs" />
     <Compile Include="Analysers\TextIndexer.cs" />
     <Compile Include="AutoInvoker.cs" />
     <Compile Include="HttpAppBase.cs" />
@@ -133,9 +134,9 @@
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap.css.map" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap.min.css.map" />
     <None Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.eot" />
-    <None Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.ttf" />
-    <None Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff" />
-    <None Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff2" />
+    <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.ttf" />
+    <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff" />
+    <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="wwwroot\bower.json" />
     <None Include="wwwroot\LICENSE" />
     <None Include="wwwroot\package.json" />
@@ -149,6 +150,9 @@
     <Content Include="wwwroot\app\bower_components\angular-mocks\ngAnimateMock.js" />
     <Content Include="wwwroot\app\bower_components\angular-mocks\ngMock.js" />
     <Content Include="wwwroot\app\bower_components\angular-mocks\ngMockE2E.js" />
+    <EmbeddedResource Include="wwwroot\app\components\search\search.js" />
+    <EmbeddedResource Include="wwwroot\app\components\diff\diff-directive.js" />
+    <EmbeddedResource Include="wwwroot\app\lib\diff-match-patch\diff_match_patch.js" />
     <EmbeddedResource Include="wwwroot\app\lib\tree\abn_tree.css" />
     <EmbeddedResource Include="wwwroot\app\lib\tree\abn_tree_directive.js" />
     <EmbeddedResource Include="wwwroot\app\components\log-explore\log-explorer.js" />
@@ -205,12 +209,6 @@
     <Content Include="wwwroot\app\bower_components\html5-boilerplate\test\file_existence.js" />
     <EmbeddedResource Include="wwwroot\app\app.css" />
     <EmbeddedResource Include="wwwroot\app\app.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\interpolate-filter.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\interpolate-filter_test.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\version-directive.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\version-directive_test.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\version.js" />
-    <EmbeddedResource Include="wwwroot\app\components\version\version_test.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap-theme.css" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap-theme.min.css" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap.css" />
@@ -219,18 +217,13 @@
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\bootstrap.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\bootstrap.min.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\npm.js" />
-    <EmbeddedResource Include="wwwroot\app\index-async.html" />
     <EmbeddedResource Include="wwwroot\app\index.html" />
-    <EmbeddedResource Include="wwwroot\app\view1\view1.html" />
-    <EmbeddedResource Include="wwwroot\app\view1\view1.js" />
-    <EmbeddedResource Include="wwwroot\app\view1\view1_test.js" />
-    <EmbeddedResource Include="wwwroot\app\view2\view2.html" />
-    <EmbeddedResource Include="wwwroot\app\view2\view2.js" />
-    <EmbeddedResource Include="wwwroot\app\view2\view2_test.js" />
-    <Content Include="wwwroot\e2e-tests\protractor.conf.js" />
-    <Content Include="wwwroot\e2e-tests\scenarios.js" />
-    <Content Include="wwwroot\karma.conf.js" />
+    <EmbeddedResource Include="wwwroot\app\tree-view\tree-view.html" />
+    <EmbeddedResource Include="wwwroot\app\tree-view\tree-view.js" />
+    <EmbeddedResource Include="wwwroot\app\log-view\log-table.html" />
+    <EmbeddedResource Include="wwwroot\app\log-view\log-table.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

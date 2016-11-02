@@ -15,11 +15,13 @@ namespace DifApi
             var uiUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":8080");
 
             var baseDir = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "data"));
+            var logger = new HttpLogger(baseDir);
 
             using (var proxy = new HttpProxy(proxyUri, targetUris))
             {
-                proxy.AnalyserEngine.Register(new RequestStore(baseDir));
-                proxy.AnalyserEngine.Register(new TextIndexer(baseDir));
+                proxy.AnalyserEngine.Register(new RequestStore(baseDir, logger));
+                proxy.AnalyserEngine.Register(logger);
+                proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
 
                 using (var app = new WebApp(uiUri))
                 using (var control = new HttpController(controlUri, proxy))

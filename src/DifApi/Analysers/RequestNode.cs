@@ -6,8 +6,12 @@ namespace DifApi.Analysers
 {
     public class RequestNode
     {
-        public RequestNode(string path)
+        private readonly RequestNode _parent;
+
+        public RequestNode(string path, RequestNode parent = null)
         {
+            _parent = parent;
+
             Path = path;
             Children = new Dictionary<string, RequestNode>();
             Statuses = Enumerable.Empty<int>();
@@ -18,6 +22,15 @@ namespace DifApi.Analysers
         public IDictionary<string, RequestNode> Children { get; private set; }
         public bool IsLeaf { get { return !Children.Any(); } }
         public string Path { get; private set; }
+
+        public string FullPath
+        {
+            get
+            {
+                return (_parent == null ? string.Empty : (_parent.FullPath == "/" ? "" : _parent.FullPath) + "/") + Path;
+            }
+        }
+
         public double AverageSizeKb { get; set; }
         public long RequestCount { get; set; }
         public IEnumerable<int> Statuses { get; private set; }
@@ -44,7 +57,7 @@ namespace DifApi.Analysers
 
             if (!Children.TryGetValue(path, out node))
             {
-                node = new RequestNode(path);
+                node = new RequestNode(path, this);
                 Children[path] = node;
             }
 

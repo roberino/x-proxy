@@ -1,0 +1,28 @@
+
+<div ng-show="source1">
+    <h2>Compare {{compareStatus}}</h2>
+    <p><strong>Source 1: {{source1.url}}</strong></p>
+    <p><strong>Source 2: {{source2.url}}</strong></p>
+    <div style="overflow-y : scroll; max-height: 300px">
+        <source-diff id="diff1" text1="source1.content" text2="source2.content"></source-diff>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Elapsed</th>
+            <th>Status</th>
+            <th>Url</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in logs.items">
+            <td>{{item.date | date: 'dd-MMM-yy hh:mm:ss'}}</td>
+            <td>{{item.elapsed}}</td>
+            <td>{{item.status}}</td>
+            <td><a href="" ng-click="loadSource(item)">{{item.originUrl}}</a></td>
+        </tr>
+    </tbody>
+</table>

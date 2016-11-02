@@ -12,17 +12,20 @@ namespace DifApi.Analysers
     class TextIndexer : IRequestAnalyser, IHasHttpInterface
     {
         private readonly DirectoryInfo _baseDir;
+        private readonly HttpLogger _logger;
         private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
 
-        public TextIndexer(DirectoryInfo baseDir)
+        public TextIndexer(DirectoryInfo baseDir, HttpLogger logger)
         {
             _baseDir = baseDir;
+            _logger = logger;
             _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
         }
 
         public Task<Stream> Run(RequestContext requestContext)
         {
-            var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), TextExtensions.Tokenise(requestContext.RequestBlob));
+            var tokens = TextExtensions.Tokenise(requestContext.RequestBlob).ToList();
+            var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), tokens);
 
             var indexInvoker = GetIndexInvoker(requestContext.OriginUrl.Host);
 
@@ -54,10 +57,32 @@ namespace DifApi.Analysers
                     search = string.Empty
                 }, x =>
                 {
-                    var results = GetIndex(x.host).Search(x.search);
+                    var results = GetIndex(x.host).Search(x.search.ToLower());
 
                     return Task.FromResult(results);
                 });
+
+            api.Bind("/logs/search?q=x", Verb.Get, r => r.RequestUri.Scheme == Uri.UriSchemeHttp)
+                .To(string.Empty, QueryAsync);
+        }
+
+        private async Task<ResourceList<LogEntry>> QueryAsync(string q)
+        {
+            var allResults = new List<LogEntry>();
+
+            foreach (var host in _logger.ListHosts())
+            {
+                var results = GetIndex(host).Search(q.ToLower()).GroupBy(h => h.DocumentKey).ToDictionary(h => h.Key, h => h.Max(x => x.Score));
+
+                var matches = await _logger.GetRecentRequests(-1, e => results.ContainsKey(e.OriginUrl.ToString()));
+
+                foreach (var match in matches.Items)
+                {
+                    allResults.Add(match.SetOrder((float)results[match.OriginUrl.ToString()]));
+                }
+            }
+
+            return new ResourceList<LogEntry>(allResults.OrderByDescending(r => r.Order));
         }
 
         public void Dispose()

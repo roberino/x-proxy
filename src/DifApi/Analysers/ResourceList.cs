@@ -10,6 +10,11 @@ namespace DifApi.Analysers
             Items = items.ToList();
             StartPosition = positionStart;
         }
+        public ResourceList(long positionStart = 0)
+        {
+            Items = new List<T>();
+            StartPosition = positionStart;
+        }
 
         public IList<T> Items { get; private set; }
         public long StartPosition { get; private set; }
