@@ -1,2 +1,2 @@
 # x-proxy
-HTTP Testing Proxy
+HTTP proxy for testing and API analysis.

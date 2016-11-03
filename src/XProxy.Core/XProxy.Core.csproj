@@ -38,8 +38,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LinqInfer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\linqinfer-1\linqinfer\src\LinqInfer\bin\Debug\LinqInfer.dll</HintPath>
+      <HintPath>..\..\packages\LinqInfer.3.3.1-beta\lib\net461\LinqInfer.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -145,13 +145,13 @@
     <None Include="wwwroot\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wwwroot\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\angular-loader\angular-loader.js" />
-    <Content Include="wwwroot\app\bower_components\angular-loader\angular-loader.min.js" />
-    <Content Include="wwwroot\app\bower_components\angular-mocks\angular-mocks.js" />
-    <Content Include="wwwroot\app\bower_components\angular-mocks\ngAnimateMock.js" />
-    <Content Include="wwwroot\app\bower_components\angular-mocks\ngMock.js" />
-    <Content Include="wwwroot\app\bower_components\angular-mocks\ngMockE2E.js" />
+    <None Include="wwwroot\.gitignore" />
+    <None Include="wwwroot\app\bower_components\angular-loader\angular-loader.js" />
+    <None Include="wwwroot\app\bower_components\angular-loader\angular-loader.min.js" />
+    <None Include="wwwroot\app\bower_components\angular-mocks\angular-mocks.js" />
+    <None Include="wwwroot\app\bower_components\angular-mocks\ngAnimateMock.js" />
+    <None Include="wwwroot\app\bower_components\angular-mocks\ngMock.js" />
+    <None Include="wwwroot\app\bower_components\angular-mocks\ngMockE2E.js" />
     <EmbeddedResource Include="wwwroot\app\components\search\search.js" />
     <EmbeddedResource Include="wwwroot\app\components\diff\diff-directive.js" />
     <EmbeddedResource Include="wwwroot\app\lib\diff-match-patch\diff_match_patch.js" />
@@ -161,61 +161,61 @@
     <EmbeddedResource Include="wwwroot\app\lib\jquery-2.1.1.min.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\angular-route\angular-route.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\angular-route\angular-route.min.js" />
-    <Content Include="wwwroot\app\bower_components\angular-route\index.js" />
-    <Content Include="wwwroot\app\bower_components\angular\angular-csp.css" />
+    <None Include="wwwroot\app\bower_components\angular-route\index.js" />
+    <None Include="wwwroot\app\bower_components\angular\angular-csp.css" />
     <EmbeddedResource Include="wwwroot\app\bower_components\angular\angular.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\angular\angular.min.js" />
-    <Content Include="wwwroot\app\bower_components\angular\index.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\.gitattributes" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\.gitattributes" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\404.html" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\apple-touch-icon.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\browserconfig.xml" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\crossdomain.xml" />
+    <None Include="wwwroot\app\bower_components\angular\index.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\.gitattributes" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\.gitignore" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\.gitattributes" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\.gitignore" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\404.html" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\apple-touch-icon.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\browserconfig.xml" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\crossdomain.xml" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\css\main.css" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\css\normalize.css" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\favicon.ico" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\humans.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\img\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\index.html" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\favicon.ico" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\humans.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\img\.gitignore" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\index.html" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\js\main.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\js\plugins.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\js\vendor\jquery-1.12.0.min.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\dist\js\vendor\modernizr-2.8.3.min.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\LICENSE.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\robots.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\tile-wide.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\dist\tile.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\gulpfile.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\LICENSE.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\.gitattributes" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\404.html" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\apple-touch-icon.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\browserconfig.xml" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\crossdomain.xml" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\css\main.css" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\favicon.ico" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\humans.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\img\.gitignore" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\index.html" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\js\main.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\js\plugins.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\LICENSE.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\robots.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\tile-wide.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\dist\tile.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\gulpfile.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\LICENSE.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\.gitattributes" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\.gitignore" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\404.html" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\apple-touch-icon.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\browserconfig.xml" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\crossdomain.xml" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\css\main.css" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\favicon.ico" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\humans.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\img\.gitignore" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\index.html" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\js\main.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\js\plugins.js" />
     <EmbeddedResource Include="wwwroot\app\bower_components\html5-boilerplate\src\js\vendor\modernizr-2.8.3.min.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\robots.txt" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\tile-wide.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\src\tile.png" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\test\file_content.js" />
-    <Content Include="wwwroot\app\bower_components\html5-boilerplate\test\file_existence.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\robots.txt" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\tile-wide.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\src\tile.png" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\test\file_content.js" />
+    <None Include="wwwroot\app\bower_components\html5-boilerplate\test\file_existence.js" />
     <EmbeddedResource Include="wwwroot\app\app.css" />
     <EmbeddedResource Include="wwwroot\app\app.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap-theme.css" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap-theme.min.css" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap.css" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\css\bootstrap.min.css" />
-    <Content Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.svg" />
+    <None Include="wwwroot\app\lib\bootstrap-3-3-7-dist\fonts\glyphicons-halflings-regular.svg" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\bootstrap.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\bootstrap.min.js" />
     <EmbeddedResource Include="wwwroot\app\lib\bootstrap-3-3-7-dist\js\npm.js" />
