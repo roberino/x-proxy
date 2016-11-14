@@ -56,7 +56,12 @@ namespace XProxy.Core
 
                 foreach (var header in context.Request.Header.Headers)
                 {
-                    if (header.Key == "Authorization" || header.Key.StartsWith("Content") || header.Key.StartsWith("Accept") || header.Key == "Cookie" || header.Key == "User-Agent")
+                    if (header.Key == "Authorization" ||
+                        header.Key.StartsWith("Content") ||
+                        header.Key.StartsWith("Accept") ||
+                        header.Key == "Cookie" ||
+                        header.Key == "User-Agent" ||
+                        header.Key.StartsWith("Cache"))
                     {
                         try
                         {
@@ -89,7 +94,7 @@ namespace XProxy.Core
                         request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.Request.Header.ContentMimeType);
                 }
 
-                var res = await client.SendAsync(request);
+                HttpResponseMessage res = await client.SendAsync(request);
 
                 Console.WriteLine("Fwd response headers:");
 

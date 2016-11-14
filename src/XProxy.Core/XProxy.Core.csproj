@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LinqInfer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\LinqInfer.3.3.1-beta\lib\net461\LinqInfer.dll</HintPath>
+      <HintPath>..\..\packages\LinqInfer.3.3.5-beta\lib\net461\LinqInfer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -55,9 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysers\FaultAnalyser.cs" />
     <Compile Include="Analysers\HttpLogger.cs" />
     <Compile Include="Analysers\LogEntry.cs" />
+    <Compile Include="Analysers\RequestFeatureMap.cs" />
     <Compile Include="Analysers\RequestNode.cs" />
+    <Compile Include="Analysers\RequestVector.cs" />
     <Compile Include="Analysers\ResourceList.cs" />
     <Compile Include="Analysers\SourceFile.cs" />
     <Compile Include="Analysers\TextIndexer.cs" />

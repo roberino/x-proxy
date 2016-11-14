@@ -15,6 +15,10 @@
                 <div class="panel-body">
                     <table class="table table-striped">
                         <tr>
+                            <th>Probability of fault</th>
+                            <td>{{(currentNode.data.probabilityOfFault * 100) | number : 2}}%</td>
+                        </tr>
+                        <tr>
                             <th>Methods</th>
                             <td>
                                 <ul><li ng-repeat="verb in currentNode.data.verbs">{{verb}}</li></ul>
@@ -29,7 +33,11 @@
                         <tr>
                             <th>Hosts</th>
                             <td>
-                                <ul><li ng-repeat="host in currentNode.data.hosts">{{host}}</li></ul>
+                                <ul>
+                                    <li ng-repeat="host in currentNode.data.hosts">
+                                        <a target="_blank" href="http://{{host}}/">{{host}}</a>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                         <tr>
@@ -38,7 +46,7 @@
                         </tr>
                         <tr>
                             <th>Average response length</th>
-                            <td>{{currentNode.data.averageSizeKb}}</td>
+                            <td>{{currentNode.data.averageSizeKb | number : 2}}Kb</td>
                         </tr>
                         <tr>
                             <th>Response times</th>

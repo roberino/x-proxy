@@ -34,6 +34,8 @@ angular.module('xproxy.logs.tree', ['ngRoute'])
                 fullPath: node.fullPath,
                 averageSizeKb: node.averageSizeKb,
                 requestCount: node.requestCount,
+                totalRequestCount: node.totalRequestCount,
+                probabilityOfFault: node.probabilityOfFault,
                 maxElapsed: node.maxElapsed,
                 minElapsed: node.minElapsed,
                 statuses: node.statuses,

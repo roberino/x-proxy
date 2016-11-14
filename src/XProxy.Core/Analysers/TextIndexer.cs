@@ -24,7 +24,7 @@ namespace XProxy.Core.Analysers
 
         public Task<Stream> Run(RequestContext requestContext)
         {
-            var tokens = TextExtensions.Tokenise(requestContext.RequestBlob).ToList();
+            var tokens = requestContext.RequestBlob.Tokenise().ToList();
             var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), tokens);
 
             var indexInvoker = GetIndexInvoker(requestContext.OriginUrl.Host);
@@ -34,6 +34,8 @@ namespace XProxy.Core.Analysers
                 indexInvoker.State.IndexDocument(doc);
                 indexInvoker.Trigger();
             }
+
+            requestContext.RequestBlob.Position = 0;
 
             return Task.FromResult(requestContext.RequestBlob);
         }

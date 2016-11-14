@@ -7,6 +7,7 @@ namespace XProxy.Core.Analysers
     public class RequestNode
     {
         private readonly RequestNode _parent;
+        private int _faultCount;
 
         public RequestNode(string path, RequestNode parent = null)
         {
@@ -40,10 +41,37 @@ namespace XProxy.Core.Analysers
         public TimeSpan MaxElapsed { get; set; }
         public TimeSpan MinElapsed { get; set; }
 
+        public double ProbabilityOfFault
+        {
+            get
+            {
+                if (IsLeaf)
+                {
+                    return _faultCount / (double)RequestCount;
+                }
+                else
+                {
+                    var total = (double)RequestCount;
+
+                    return Children.Values.Sum(r => (r.ProbabilityOfFault * (r.RequestCount / total)));
+                }
+            }
+        }
+
+        public void RegisterFault()
+        {
+            _faultCount++;
+        }
+
         public void RegisterStatus(int status, string verb)
         {
             Statuses = Statuses.Concat(new[] { status }).Distinct().ToList();
             Verbs = Verbs.Concat(new[] { verb }).Distinct().ToList();
+
+            if (status >= 400)
+            {
+                RegisterFault();
+            }
         }
 
         public void RegisterHost(string host)

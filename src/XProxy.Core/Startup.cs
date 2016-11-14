@@ -22,6 +22,7 @@ namespace XProxy.Core
                 proxy.AnalyserEngine.Register(new RequestStore(baseDir, logger));
                 proxy.AnalyserEngine.Register(logger);
                 proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
+                proxy.AnalyserEngine.Register(new RequestFeatureMap(baseDir, logger));
 
                 var control = new HttpController(controlUri, proxy);
 

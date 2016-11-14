@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace XProxy.Core.Analysers
 {
-    class HttpLogger : IRequestAnalyser, IHasHttpInterface, IDisposable
+    class HttpLogger : IRequestAnalyser, IHasHttpInterface
     {
         private const int DefaultReadSize = 4096 * 6;
         private readonly TextWriter _logger;

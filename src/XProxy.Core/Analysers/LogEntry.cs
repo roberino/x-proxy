@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LinqInfer.Data.Remoting;
+using System;
 using System.Linq;
 using System.Xml;
 
@@ -18,7 +19,9 @@ namespace XProxy.Core.Analysers
         public DateTime Date { get; private set; }
         public TimeSpan Elapsed { get; private set; }
         public string HttpVerb { get; private set; }
+        public string MimeType { get; private set; }
         public int Status { get; private set; }
+        public Uri RefererUrl { get; private set; }
         public Uri OriginUrl { get; private set; }
         public string OriginPath
         {
@@ -60,7 +63,9 @@ namespace XProxy.Core.Analysers
                 Status = int.Parse(parts[5]),
                 OriginUrl = new Uri(parts[6]),
                 RequestSize = long.Parse(parts[7]),
-                ResponseSize = long.Parse(parts[8])
+                ResponseSize = long.Parse(parts[8]),
+                MimeType = parts.Length > 9 ? parts[9] : null,
+                RefererUrl = parts.Length > 10 ? TryParseUri(parts[10]) : null
             };
         }
 
@@ -76,7 +81,7 @@ namespace XProxy.Core.Analysers
                 remoteAddr = new string[0];
             }
 
-            return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
+            return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}",
                 remoteAddr.FirstOrDefault(),
                 requestContext.Id,
                 XmlConvert.ToString(res.Header.Date, XmlDateTimeSerializationMode.Utc),
@@ -85,7 +90,65 @@ namespace XProxy.Core.Analysers
                 res.Header.StatusCode.GetValueOrDefault(0),
                 requestContext.OriginUrl,
                 head.ContentLength,
-                res.Header.Headers["Content-Length"].FirstOrDefault());
+                res.Header.Headers["Content-Length"].FirstOrDefault(),
+                GetMime(requestContext),
+                GetReferer(requestContext));
+        }
+
+        private static Uri TryParseUri(string uri)
+        {
+            Uri u;
+
+            if (!string.IsNullOrEmpty(uri) && Uri.TryCreate(uri, UriKind.Absolute, out u)) return u;
+
+            return null;
+        }
+
+        private static string GetMime(RequestContext requestContext)
+        {
+            var rh = requestContext.OwinContext.Response.Header;
+            var mimeType = rh.MimeType;
+
+            if (mimeType != null) return mimeType;
+
+            string[] mimeTypeHeader;
+
+            if (rh.Headers.TryGetValue("Content-Type", out mimeTypeHeader))
+            {
+                mimeType = mimeTypeHeader.FirstOrDefault();
+
+                if (mimeType != null) return mimeType.Split(';').FirstOrDefault().Trim();
+            }
+
+            return null;
+        }
+
+        private static Uri GetReferer(RequestContext requestContext)
+        {
+            string[] referer;
+
+            if (requestContext.OwinContext.Request.Header.Headers.TryGetValue("Referer", out referer))
+            {
+                var referer1 = referer.FirstOrDefault();
+
+                if (referer1 != null)
+                {
+                    try
+                    {
+                        if (!referer1.Contains(Uri.SchemeDelimiter))
+                        {
+                            return new Uri(requestContext.OriginUrl, referer1);
+                        }
+                        else
+                        {
+                            return new Uri(referer1);
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            return null;
         }
     }
 }
