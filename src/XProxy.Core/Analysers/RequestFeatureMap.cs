@@ -55,8 +55,8 @@ namespace XProxy.Core.Analysers
                 ErrorCount = requestContext.OwinContext.Response.Header.StatusCode.GetValueOrDefault(0) >= 400 ? 1 : 0,
                 IsCacheable = IsCacheable(requestContext.OwinContext),
                 IsPublic = IsPublic(requestContext.OwinContext),
-                IsHtml = requestContext.OwinContext.Response.Header.MimeType.Contains("text/html"),
-                IsJson = requestContext.OwinContext.Response.Header.MimeType.Contains("json"),
+                IsHtml = requestContext.OwinContext.Response.Header.ContentMimeType.Contains("text/html"),
+                IsJson = requestContext.OwinContext.Response.Header.ContentMimeType.Contains("json"),
                 PathCount = requestContext.OriginUrl.PathAndQuery.Split('/').Count(),
                 RequestCount = data.Items.Count,
                 ResponseSize = data.Items.Select(r => r.ResponseSize / 1024d).Mean(),
@@ -119,7 +119,7 @@ namespace XProxy.Core.Analysers
 
                 if (ms.Length == 0) return Enumerable.Empty<IToken>();
 
-                switch (requestContext.OwinContext.Response.Header.MimeType)
+                switch (requestContext.OwinContext.Response.Header.ContentMimeType)
                 {
                     case "application/json":
                     case "text/html":

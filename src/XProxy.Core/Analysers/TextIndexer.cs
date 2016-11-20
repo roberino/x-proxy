@@ -14,12 +14,18 @@ namespace XProxy.Core.Analysers
         private readonly DirectoryInfo _baseDir;
         private readonly HttpLogger _logger;
         private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
+        private readonly DeferredExecution _deferredTasks;
 
         public TextIndexer(DirectoryInfo baseDir, HttpLogger logger)
         {
             _baseDir = baseDir;
             _logger = logger;
             _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
+            _deferredTasks = new DeferredExecution(x =>
+            {
+                Console.WriteLine(x.Message);
+                return true;
+            });
         }
 
         public Task<Stream> Run(RequestContext requestContext)
@@ -110,7 +116,7 @@ namespace XProxy.Core.Analysers
             {
                 var file = GetIndexFile(host);
 
-                _indexes[key] = indexInvoker = new AutoInvoker<IDocumentIndex>(i => SaveIndex(i, host), new TokenisedTextDocument[] { }.CreateIndex());
+                _indexes[key] = indexInvoker = new AutoInvoker<IDocumentIndex>(i => DeferredSave(i, host), new TokenisedTextDocument[] { }.CreateIndex());
 
                 if (file.Exists)
                 {
@@ -124,7 +130,12 @@ namespace XProxy.Core.Analysers
             return indexInvoker;
         }
 
-        private void SaveIndex(IDocumentIndex index, string host)
+        private void DeferredSave(IDocumentIndex index, string host)
+        {
+            _deferredTasks.ExecuteOncePerId(host, () => SaveIndex(index, host), TimeSpan.FromSeconds(7));
+        }
+
+        private Task SaveIndex(IDocumentIndex index, string host)
         {
             var state = new
             {
@@ -145,6 +156,8 @@ namespace XProxy.Core.Analysers
 
                 Console.WriteLine("Index updated - " + host);
             }
+
+            return Task.FromResult(true);
         }
 
         private FileInfo GetIndexFile(string host)

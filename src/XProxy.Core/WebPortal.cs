@@ -36,7 +36,7 @@ namespace XProxy.Core
                         var ext = relPath.Split('.').Last().Split('?').First();
 
                         c.Response.Header.Headers["Cache-Control"] = new [] { "private, max-age=15000" };
-                        c.Response.Header.MimeType = MapMime(ext);
+                        c.Response.Header.ContentMimeType = MapMime(ext);
 
                         await resource.CopyToAsync(c.Response.Content);
                     }

@@ -9,14 +9,19 @@ namespace XProxy.Core
     {
         private readonly int _maxQueueSize;
 
-        private readonly AutoInvoker<Queue<RequestContext>> _worker;
+        private readonly AutoInvokerV2<Queue<RequestContext>> _worker;
         private readonly IList<IRequestAnalyser> _analysers;
 
-        internal RequestAnalysisEngine(int maxQueueSize = 100)
+        internal RequestAnalysisEngine(int maxQueueSize = 500)
         {
             _maxQueueSize = maxQueueSize;
-            _worker = new AutoInvoker<Queue<RequestContext>>(Execute, new Queue<RequestContext>());
+            _worker = new AutoInvokerV2<Queue<RequestContext>>(Execute, new Queue<RequestContext>(), s => s.Count > 0);
             _analysers = new List<IRequestAnalyser>();
+        }
+
+        public IDisposable Pause()
+        {
+            return _worker.Pause();
         }
 
         public IEnumerable<IRequestAnalyser> Analysers { get { return _analysers; } }
@@ -34,6 +39,8 @@ namespace XProxy.Core
 
                 if (_worker.State.Count > _maxQueueSize)
                 {
+                    Console.WriteLine("Queue size exceeded");
+
                     _worker.Run();
                 }
                 else
@@ -49,7 +56,7 @@ namespace XProxy.Core
         {
             RequestContext next;
 
-            while (queue.Count > 0)
+            if (queue.Count > 0)
             {
                 lock (queue) next = queue.Dequeue();
 
@@ -75,6 +82,13 @@ namespace XProxy.Core
                 }
 
                 next.Dispose();
+            }
+
+            if (queue.Count > 0)
+            {
+                _worker.Trigger();
+
+                Console.WriteLine("Queue size = {0}", queue.Count);
             }
         }
     }

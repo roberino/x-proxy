@@ -15,6 +15,8 @@ namespace XProxy.Core
             _host = hostAddress.CreateHttpApplication();
         }
 
+        internal IOwinApplication ApplicationHost { get { return _host; } }
+
         public void AllowOrigin(Uri origin)
         {
             _host.AddComponent(c =>

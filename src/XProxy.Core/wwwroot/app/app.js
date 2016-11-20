@@ -8,7 +8,8 @@ angular.module('xproxy', [
   'xproxy.search',
   'xproxy.logexplorer',
   'xproxy.diff',
-  'angularBootstrapNavTree'
+  'angularBootstrapNavTree',
+  'n3-line-chart'
 ]).
 config(['$locationProvider', '$routeProvider', '$httpProvider', function ($locationProvider, $routeProvider, $httpProvider) {
   $locationProvider.hashPrefix('!');

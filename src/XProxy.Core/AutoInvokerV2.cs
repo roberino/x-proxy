@@ -1,40 +1,43 @@
 ﻿using System;
-using System.Timers;
+using System.Threading;
 
 namespace XProxy.Core
 {
-    class AutoInvoker<T> : IDisposable
+    class AutoInvokerV2<T> : IDisposable
     {
-        private readonly Timer _timer;
         private readonly Action<T> _action;
         private readonly T _state;
         private readonly Func<T, bool> _triggerCheck;
+        private readonly Thread _worker;
 
         private bool _isDirty;
         private bool _isPaused;
+        private bool _isDisposed;
 
-        public AutoInvoker(Action<T> action, T state, Func<T, bool> triggerCheck = null, TimeSpan? interval = null)
+        public AutoInvokerV2(Action<T> action, T state, Func<T, bool> triggerCheck = null, TimeSpan? interval = null)
         {
             _action = action;
             _state = state;
 
-            _timer = new Timer(interval.GetValueOrDefault(TimeSpan.FromMilliseconds(200)).TotalMilliseconds);
-
-            _timer.Elapsed += OnFire;
-
             _triggerCheck = triggerCheck == null ?
                 (_ => _isDirty) : (Func<T, bool>)(s => _isDirty || triggerCheck(s));
+
+            _worker = new Thread(Execute)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Lowest
+            };
+
+            _worker.Start();
         }
 
         public IDisposable Pause()
         {
-            _timer.Enabled = false;
             _isPaused = true;
 
             return new PauseState(() =>
             {
                 _isPaused = false;
-                _timer.Enabled = true;
             });
         }
 
@@ -43,7 +46,6 @@ namespace XProxy.Core
         public void Trigger()
         {
             _isDirty = true;
-            if (!_isPaused) _timer.Enabled = true;
         }
 
         public void Run()
@@ -53,26 +55,28 @@ namespace XProxy.Core
 
         public void Dispose()
         {
-            _timer.Stop();
+            _isDisposed = true;
 
             if (_isDirty)
             {
                 OnFire();
             }
-
-            _timer.Dispose();
         }
 
-        private void OnFire(object sender, ElapsedEventArgs e)
+        private void Execute()
         {
-            OnFire();
+            while (!_isDisposed)
+            {
+                if (!OnFire())
+                {
+                    Thread.Sleep(50);
+                }
+            }
         }
 
-        private void OnFire()
+        private bool OnFire()
         {
-            if (_isPaused) return;
-
-            _timer.Enabled = false;
+            if (_isPaused) return false;
 
             if (_triggerCheck(State))
             {
@@ -81,16 +85,18 @@ namespace XProxy.Core
                     _action(_state);
                     _isDirty = false;
                 }
+                catch (AggregateException ex)
+                {
+                    foreach (var e in ex.InnerExceptions)
+                        Console.WriteLine(ex.Message);
+                }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-
-                if (_triggerCheck(State))
-                {
-                    _timer.Enabled = true;
-                }
             }
+
+            return false;
         }
 
         private class PauseState : IDisposable

@@ -27,7 +27,7 @@ angular.module('xproxy.logs.table', ['ngRoute'])
 
         $scope.compareStatus = "(Loading)";
 
-        if (sn % 2 == 0) {
+        if (sn % 2 === 0) {
             $scope.source1 = { url: logEntry.originUrl };
             $scope.source2 = null;
         }
@@ -36,7 +36,7 @@ angular.module('xproxy.logs.table', ['ngRoute'])
         }
 
         logexplorer.loadSource(logEntry.originHost, logEntry.originPath, logEntry.id, function (data) {
-            if (sn % 2 == 0) {
+            if (sn % 2 === 0) {
                 $scope.source1 = data;
                 $scope.compareStatus = "(Waiting for second url)";
             }
@@ -49,7 +49,7 @@ angular.module('xproxy.logs.table', ['ngRoute'])
 
     if (query) {
         var pathi = query.indexOf("path-");
-        if (pathi == 0) {
+        if (pathi === 0) {
             var path = query.substr(5);
             logexplorer.filterByPath(window.atob(path), function (data) {
                 $scope.logs = data;
@@ -64,6 +64,74 @@ angular.module('xproxy.logs.table', ['ngRoute'])
     else {
         logexplorer.loadLogs(function (data) {
             $scope.logs = data;
+        });
+    }
+
+    loadHistogram2();
+    
+    function loadHistogram2() {
+        logexplorer.loadTimeHistogramByMime(function (data) {
+
+            for (var i = 0; i < data.items.length; i++) {
+                data.items[i].x = i;
+            }
+
+            $scope.data = {
+                dataset0: data.items
+            };
+
+            $scope.options = {
+                series: [],
+                axes: { x: { key: "x" } }
+            };
+
+            var colours = ["#1f77b4", "#AE63FF", "#FFB05B", "#27B423", "#B21147", "#4FADAD", "#590DAA", "#E8E80D"];
+            var i = 0;
+
+            for (var k in data.attributes) {
+                $scope.options.series.push({
+                    axis: "y",
+                    dataset: "dataset0",
+                    key: k,
+                    label: k,
+                    color: colours[i++ % colours.length],
+                    type: ['line', 'dot'],
+                    id: 'series' + i
+                });
+            }
+        });
+    }
+
+    function loadHistogram1() {
+        logexplorer.loadTimeHistogram(function (data) {
+
+            var ds = [];
+
+            for (var i = 0; i < data.length; i++) {
+                ds.push({
+                    x: i,
+                    y: data[i].length
+                });
+            }
+
+            $scope.data = {
+                dataset0: ds
+            };
+
+            $scope.options = {
+                series: [
+                  {
+                      axis: "y",
+                      dataset: "dataset0",
+                      key: "y",
+                      label: "Request histogram",
+                      color: "#1f77b4",
+                      type: ['column'],
+                      id: 'mySeries0'
+                  }
+                ],
+                axes: { x: { key: "x" } }
+            };
         });
     }
 }]);

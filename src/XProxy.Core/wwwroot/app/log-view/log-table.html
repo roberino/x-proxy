@@ -11,6 +11,13 @@
 
 <h2>Showing {{logs.items.length}} records out of {{logs.totalSize / 1024 | number: 2}}Kb of data</h2>
 
+<div>
+    <linechart data="data" options="options"></linechart>
+</div>
+
+<br/>
+<br />
+
 <table class="table table-striped">
     <thead>
         <tr>

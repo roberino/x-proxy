@@ -22,16 +22,19 @@ namespace XProxy.Core
         }
 
         public RequestAnalysisEngine AnalyserEngine { get { return _analysers; } }
-
+        
         protected override void Setup(IOwinApplication host)
         {
             host.AddComponent(async c =>
             {
-                var id = Guid.NewGuid();
-                int i = 0;
-                var tasks = _targets.Select(t => ForwardContext(id, (i++ > 0) ? c.Clone(true) : c, t)).ToList();
-                
-                await Task.WhenAll(tasks);
+                using (_analysers.Pause())
+                {
+                    var id = Guid.NewGuid();
+                    int i = 0;
+                    var tasks = _targets.Select(t => ForwardContext(id, (i++ > 0) ? c.Clone(true) : c, t)).ToList();
+
+                    await Task.WhenAll(tasks);
+                }
             });
         }
 
@@ -52,8 +55,6 @@ namespace XProxy.Core
                     RequestUri = fwdUri
                 };
 
-                Console.WriteLine("Fwd request headers:");
-
                 foreach (var header in context.Request.Header.Headers)
                 {
                     if (header.Key == "Authorization" ||
@@ -67,7 +68,7 @@ namespace XProxy.Core
                         {
                             request.Headers.Add(header.Key, header.Value);
 
-                            Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
+                            // Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
                         }
                         catch (Exception ex)
                         {
@@ -96,17 +97,14 @@ namespace XProxy.Core
 
                 HttpResponseMessage res = await client.SendAsync(request);
 
-                Console.WriteLine("Fwd response headers:");
-
                 foreach (var header in res.Headers)
                 {
-                    Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
+                    // Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
                     context.Response.Header.Headers[header.Key] = header.Value.ToArray();
                 }
 
                 foreach (var header in res.Content.Headers)
                 {
-                    Console.WriteLine("{0}: {1}", header.Key, string.Join(",", header.Value));
                     context.Response.Header.Headers[header.Key] = header.Value.ToArray();
                 }
 
