@@ -1,4 +1,6 @@
 ﻿using LinqInfer.Data.Remoting;
+using LinqInfer.Maths;
+using LinqInfer.Maths.Probability;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,6 +51,12 @@ namespace XProxy.Core.Analysers
 
             api.Bind("/logs/tree/{x}", Verb.Get)
                 .To((long)0, x => GetRequestTree(x));
+
+            api.Bind("/logs/histogram/time-series/all/{x}", Verb.Get)
+                .To(1000d, x => GetHistogram(x));
+
+            api.Bind("/logs/histogram/time-series/by-mime/{x}", Verb.Get)
+                .To(1000d, x => GetHistogramGroupedByMime(x));
         }
 
         public async Task<Stream> Run(RequestContext requestContext)
@@ -61,6 +69,45 @@ namespace XProxy.Core.Analysers
         public ResourceList<string> ListHosts()
         {
             return new ResourceList<string>(_baseDir.GetDirectories().Select(d => d.Name));
+        }
+
+        public async Task<DiscretizedSet<DateTime, TimeSpan, LogEntry>> GetHistogram(double span)
+        {
+            var timespan = TimeSpan.FromMilliseconds(span);
+            var dataSpan = TimeSpan.FromMilliseconds(-span * 10);
+
+            var data = await GetRecentRequests(-1);
+            var maxTime = data.Items.LastOrDefault()?.Date ?? DateTime.UtcNow;
+            var filteredRange = data.Items.Where(e => e.Date > maxTime.Add(dataSpan));
+
+            var histogram = filteredRange.AsQueryable().AsHistogram(x => x.Date, TimeSpan.FromMilliseconds(span));
+
+            return histogram;
+        }
+
+        public async Task<DiscretizedSet<double, double, LogEntry>> GetHistogramByRequestTime(double span)
+        {
+            var data = await GetRecentRequests(-1);
+
+            var histogram = data.Items.AsQueryable().AsHistogram(x => x.ElapsedMilliseconds, 100);
+
+            return histogram;
+        }
+
+        public async Task<ResourceList<IDictionary<string, int>>> GetHistogramGroupedByMime(double span)
+        {
+            var histogram = await GetHistogram(span);
+
+            var resource = new ResourceList<IDictionary<string, int>>(histogram
+                .Select(k => (IDictionary<string, int>)k.GroupBy(x => x.MimeType)
+                .ToDictionary(x => x.Key, x => x.Count())));
+
+            foreach (var key in resource.Items.SelectMany(x => x.Keys).Distinct())
+            {
+                resource.Attributes[key] = true;
+            }
+
+            return resource;
         }
 
         public async Task<RequestNode> GetRequestTree(long position)
@@ -114,7 +161,7 @@ namespace XProxy.Core.Analysers
 
             using (var stream = new FileStream(_logFile.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
-                if (position > 0 && position < stream.Length)
+                if (position > -1 && position < stream.Length)
                 {
                     stream.Position = startPos = position;
                 }

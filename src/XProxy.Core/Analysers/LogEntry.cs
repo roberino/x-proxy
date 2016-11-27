@@ -107,7 +107,7 @@ namespace XProxy.Core.Analysers
         private static string GetMime(RequestContext requestContext)
         {
             var rh = requestContext.OwinContext.Response.Header;
-            var mimeType = rh.MimeType;
+            var mimeType = rh.ContentMimeType;
 
             if (mimeType != null) return mimeType;
 

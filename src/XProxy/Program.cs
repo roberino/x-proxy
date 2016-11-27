@@ -26,7 +26,17 @@ namespace XProxy
             {
                 startup.Start();
 
-                Console.ReadKey();
+                while (true)
+                {
+                    if (Console.ReadKey().Key == ConsoleKey.Spacebar)
+                    {
+                        Console.WriteLine();
+                        Console.Write(startup);
+
+                        continue;
+                    }
+                    break;
+                }
 
                 startup.Stop();
             }

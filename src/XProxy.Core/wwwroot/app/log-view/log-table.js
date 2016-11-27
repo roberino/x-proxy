@@ -16,6 +16,9 @@ angular.module('xproxy.logs.table', ['ngRoute'])
     var sourceNum = 0;
 
     $scope.closeCompare = function () {
+
+        $("#compare-modal").modal("hide");
+
         sourceNum = 0;
         $scope.source1 = null;
         $scope.source2 = null;
@@ -27,7 +30,7 @@ angular.module('xproxy.logs.table', ['ngRoute'])
 
         $scope.compareStatus = "(Loading)";
 
-        if (sn % 2 == 0) {
+        if (sn % 2 === 0) {
             $scope.source1 = { url: logEntry.originUrl };
             $scope.source2 = null;
         }
@@ -36,20 +39,22 @@ angular.module('xproxy.logs.table', ['ngRoute'])
         }
 
         logexplorer.loadSource(logEntry.originHost, logEntry.originPath, logEntry.id, function (data) {
-            if (sn % 2 == 0) {
+            if (sn % 2 === 0) {
                 $scope.source1 = data;
                 $scope.compareStatus = "(Waiting for second url)";
             }
             else {
                 $scope.source2 = data;
                 $scope.compareStatus = "";
+
+                $("#compare-modal").modal("show");
             }
         });
     };
 
     if (query) {
         var pathi = query.indexOf("path-");
-        if (pathi == 0) {
+        if (pathi === 0) {
             var path = query.substr(5);
             logexplorer.filterByPath(window.atob(path), function (data) {
                 $scope.logs = data;
@@ -65,5 +70,62 @@ angular.module('xproxy.logs.table', ['ngRoute'])
         logexplorer.loadLogs(function (data) {
             $scope.logs = data;
         });
+    }
+
+    $scope.loadHistogram = loadHistogram;
+
+    loadHistogram();
+    
+    function loadHistogram(timerange) {
+        $scope.chart = undefined;
+
+        logexplorer.loadTimeHistogramByMime(function (data) {
+
+            for (var i = 0; i < data.items.length; i++) {
+                data.items[i].x = i + 1;
+
+                for (var k in data.attributes) {
+                    if (!data.items[i][k]) {
+                        data.items[i][k] = 0;
+                    }
+                }
+            }
+
+            var chart = { data: { dataset1: data.items } };
+
+            chart.options = {
+                margin: { top: 8 },
+                stacks: [
+                    { axis: "y", series: [] }
+                ],
+                series: [],
+                axes: { x: { key: "x" }, y: { min: 0 } }
+            };
+
+            var colours = ["#1f77b4", "#AE63FF", "#FFB05B", "#27B423", "#B21147", "#4FADAD", "#590DAA", "#E8E80D"];
+            var i = 0;
+
+            for (var k in data.attributes) {
+                var id = "series" + i;
+                chart.options.stacks[0].series.push(id);
+                chart.options.series.push({
+                    axis: "y",
+                    interpolation: { mode: "bundle", tension: 0.7 },
+                    dataset: "dataset1",
+                    id: "series" + i,
+                    key: k,
+                    label: k,
+                    color: colours[i % colours.length],
+                    type: ["area", "line", "dot"]
+                });
+                i++;
+            }
+
+            //delete chart.options.stacks;
+
+            $scope.chart = chart;
+            $scope.chart.visible = true;
+
+        }, timerange);
     }
 }]);

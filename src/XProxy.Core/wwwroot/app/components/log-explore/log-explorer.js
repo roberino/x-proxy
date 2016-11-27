@@ -21,6 +21,14 @@ function initialiseService($http) {
         });
     }
 
+    function loadTimeHistogramFromApi(callback) {
+        corsRequest("/logs/histogram/time-series/all/60000", callback);
+    }
+
+    function loadTimeHistogramByMimeFromApi(callback, timeRangeSecs) {
+        corsRequest("/logs/histogram/time-series/by-mime/" + (timeRangeSecs || 2000), callback);
+    }
+
     function loadTreeFromApi(callback) {
         corsRequest("/logs/tree/-1", callback);
     }
@@ -50,7 +58,7 @@ function initialiseService($http) {
 
             if (searchCallbacks) {
                 for (var i = 0; i < searchCallbacks.length; i++) {
-                    searchCallbacks[i](data)
+                    searchCallbacks[i](data);
                 }
             }
         });
@@ -63,11 +71,13 @@ function initialiseService($http) {
     return {
         loadLogs: loadLogsFromApi,
         loadTree: loadTreeFromApi,
+        loadTimeHistogram: loadTimeHistogramFromApi,
+        loadTimeHistogramByMime: loadTimeHistogramByMimeFromApi,
         filterByPath: loadUrlFilterFromApi,
         loadSource: loadSourceFromApi,
         search: searchFromApi,
         onSearch: onSearch,
-        currentSearchText: function () { return currentSearch }
+        currentSearchText: function () { return currentSearch; }
     };
 }
 

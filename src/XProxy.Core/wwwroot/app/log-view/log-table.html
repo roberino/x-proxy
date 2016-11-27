@@ -1,15 +1,53 @@
-
-<div ng-show="source1">
-    <h2>Compare {{compareStatus}}</h2>
-    <button class="btn btn-warning pull-right" ng-click="closeCompare()"><span class="glyphicon glyphicon-remove"> </span> Clear</button>
-    <p><strong>Source 1: {{source1.url}}</strong></p>
-    <p><strong>Source 2: {{source2.url}}</strong></p>
-    <div style="overflow-y : scroll; max-height: 300px">
-        <source-diff id="diff1" text1="source1.content" text2="source2.content"></source-diff>
+<div id="compare-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Compare sources</h4>
+            </div>
+            <div class="modal-body">
+                <div ng-show="source1">
+                    <h2>Compare {{compareStatus}}</h2>
+                    <!--<button class="btn btn-warning pull-right" ng-click="closeCompare()"><span class="glyphicon glyphicon-remove"> </span> Clear</button>-->
+                    <p><strong>Source 1: {{source1.url}}</strong></p>
+                    <p><strong>Source 2: {{source2.url}}</strong></p>
+                    <div style="overflow-y : scroll; max-height: 300px">
+                        <source-diff id="diff1" text1="source1.content" text2="source2.content"></source-diff>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="closeCompare()" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <h2>Showing {{logs.items.length}} records out of {{logs.totalSize / 1024 | number: 2}}Kb of data</h2>
+
+<div style="height: 200px;">
+    <linechart ng-show="chart.visible" data="chart.data" options="chart.options"></linechart>
+    <div class="clearfix"></div>
+    <!-- Split button -->
+    <div class="btn-group pull-right">
+        <button type="button" class="btn btn-default" ng-click="chart.visible = !chart.visible">
+            {{chart.visible ? "Hide histogram" : "Show histogram"}}
+        </button>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a ng-click="loadHistogram(5000)">5 Seconds</a></li>
+            <li><a ng-click="loadHistogram(30000)">30 Seconds</a></li>
+            <li><a ng-click="loadHistogram(60000)">1 Minute</a></li>
+            <li><a ng-click="loadHistogram(300000)">5 Minutes</a></li>
+        </ul>
+    </div>
+</div>
+
+<br/>
+<br />
 
 <table class="table table-striped">
     <thead>
