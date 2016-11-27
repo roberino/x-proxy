@@ -6,7 +6,7 @@
 		<title>eXProxy</title>
 		<authors>R Eyres</authors>
 		<owners>R Eyres</owners>
-		<description>An easy to install HTTP API analyser</description> 
+		<description>A HTTP analysis and comparison tool</description> 
 		<projectUrl>https://github.com/roberino/x-proxy</projectUrl>
 		<licenseUrl>https://raw.githubusercontent.com/roberino/x-proxy/master/LICENSE</licenseUrl>
 		<tags>http analytics proxy automation</tags>
