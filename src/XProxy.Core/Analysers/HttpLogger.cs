@@ -1,5 +1,6 @@
 ﻿using LinqInfer.Data.Remoting;
 using LinqInfer.Maths;
+using LinqInfer.Maths.Probability;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -75,9 +76,11 @@ namespace XProxy.Core.Analysers
             var timespan = TimeSpan.FromMilliseconds(span);
             var dataSpan = TimeSpan.FromMilliseconds(-span * 10);
 
-            var data = await GetRecentRequests(-1, e => e.Date > DateTime.UtcNow.Add(dataSpan));
+            var data = await GetRecentRequests(-1);
+            var maxTime = data.Items.LastOrDefault()?.Date ?? DateTime.UtcNow;
+            var filteredRange = data.Items.Where(e => e.Date > maxTime.Add(dataSpan));
 
-            var histogram = data.Items.AsQueryable().AsHistogram(x => x.Date, TimeSpan.FromMilliseconds(span));
+            var histogram = filteredRange.AsQueryable().AsHistogram(x => x.Date, TimeSpan.FromMilliseconds(span));
 
             return histogram;
         }

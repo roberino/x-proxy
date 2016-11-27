@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace XProxy.Core
 {
@@ -23,7 +24,11 @@ namespace XProxy.Core
                 proxy.AnalyserEngine.Register(logger);
                 proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
                 //proxy.AnalyserEngine.Register(new RequestFeatureMap(baseDir, logger));
-                proxy.AnalyserEngine.Register(new ProxyStatus(proxy.ApplicationHost));
+
+                proxy.ApplicationHost.StatusChanged += (s, v) =>
+                {
+                    Console.WriteLine("Proxy status = {0}", v.Value);
+                };
 
                 var control = new HttpController(controlUri, proxy);
 
@@ -59,6 +64,18 @@ namespace XProxy.Core
         public void Dispose()
         {
             foreach (var app in apps) app.Dispose();
+        }
+
+        public override string ToString()
+        {
+            var status = new StringBuilder();
+
+            foreach (var app in apps)
+            {
+                status.AppendFormat("{0} {1}\n", app.ApplicationHost.BaseEndpoint, app.ApplicationHost.Status);
+            }
+
+            return status.ToString();
         }
     }
 }

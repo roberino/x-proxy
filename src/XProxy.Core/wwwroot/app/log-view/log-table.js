@@ -16,6 +16,9 @@ angular.module('xproxy.logs.table', ['ngRoute'])
     var sourceNum = 0;
 
     $scope.closeCompare = function () {
+
+        $("#compare-modal").modal("hide");
+
         sourceNum = 0;
         $scope.source1 = null;
         $scope.source2 = null;
@@ -43,6 +46,8 @@ angular.module('xproxy.logs.table', ['ngRoute'])
             else {
                 $scope.source2 = data;
                 $scope.compareStatus = "";
+
+                $("#compare-modal").modal("show");
             }
         });
     };
@@ -67,71 +72,60 @@ angular.module('xproxy.logs.table', ['ngRoute'])
         });
     }
 
-    loadHistogram2();
+    $scope.loadHistogram = loadHistogram;
+
+    loadHistogram();
     
-    function loadHistogram2() {
+    function loadHistogram(timerange) {
+        $scope.chart = undefined;
+
         logexplorer.loadTimeHistogramByMime(function (data) {
 
             for (var i = 0; i < data.items.length; i++) {
-                data.items[i].x = i;
+                data.items[i].x = i + 1;
+
+                for (var k in data.attributes) {
+                    if (!data.items[i][k]) {
+                        data.items[i][k] = 0;
+                    }
+                }
             }
 
-            $scope.data = {
-                dataset0: data.items
-            };
+            var chart = { data: { dataset1: data.items } };
 
-            $scope.options = {
+            chart.options = {
+                margin: { top: 8 },
+                stacks: [
+                    { axis: "y", series: [] }
+                ],
                 series: [],
-                axes: { x: { key: "x" } }
+                axes: { x: { key: "x" }, y: { min: 0 } }
             };
 
             var colours = ["#1f77b4", "#AE63FF", "#FFB05B", "#27B423", "#B21147", "#4FADAD", "#590DAA", "#E8E80D"];
             var i = 0;
 
             for (var k in data.attributes) {
-                $scope.options.series.push({
+                var id = "series" + i;
+                chart.options.stacks[0].series.push(id);
+                chart.options.series.push({
                     axis: "y",
-                    dataset: "dataset0",
+                    interpolation: { mode: "bundle", tension: 0.7 },
+                    dataset: "dataset1",
+                    id: "series" + i,
                     key: k,
                     label: k,
-                    color: colours[i++ % colours.length],
-                    type: ['line', 'dot'],
-                    id: 'series' + i
+                    color: colours[i % colours.length],
+                    type: ["area", "line", "dot"]
                 });
-            }
-        });
-    }
-
-    function loadHistogram1() {
-        logexplorer.loadTimeHistogram(function (data) {
-
-            var ds = [];
-
-            for (var i = 0; i < data.length; i++) {
-                ds.push({
-                    x: i,
-                    y: data[i].length
-                });
+                i++;
             }
 
-            $scope.data = {
-                dataset0: ds
-            };
+            //delete chart.options.stacks;
 
-            $scope.options = {
-                series: [
-                  {
-                      axis: "y",
-                      dataset: "dataset0",
-                      key: "y",
-                      label: "Request histogram",
-                      color: "#1f77b4",
-                      type: ['column'],
-                      id: 'mySeries0'
-                  }
-                ],
-                axes: { x: { key: "x" } }
-            };
-        });
+            $scope.chart = chart;
+            $scope.chart.visible = true;
+
+        }, timerange);
     }
 }]);

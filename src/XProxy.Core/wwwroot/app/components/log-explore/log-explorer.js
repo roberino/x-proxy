@@ -25,8 +25,8 @@ function initialiseService($http) {
         corsRequest("/logs/histogram/time-series/all/60000", callback);
     }
 
-    function loadTimeHistogramByMimeFromApi(callback) {
-        corsRequest("/logs/histogram/time-series/by-mime/60000", callback);
+    function loadTimeHistogramByMimeFromApi(callback, timeRangeSecs) {
+        corsRequest("/logs/histogram/time-series/by-mime/" + (timeRangeSecs || 2000), callback);
     }
 
     function loadTreeFromApi(callback) {
