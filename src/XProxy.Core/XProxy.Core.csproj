@@ -48,7 +48,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="LinqInfer.Owin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\LinqInfer.Owin.1.0.7\lib\net461\LinqInfer.Owin.dll</HintPath>
+      <HintPath>..\..\packages\LinqInfer.Owin.1.0.8\lib\net461\LinqInfer.Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="LinqInfer.Storage.SQLite, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
