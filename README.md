@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/roberino/x-proxy.svg?branch=master)](https://travis-ci.org/roberino/x-proxy)
+
+
 # eXProxy
 
 HTTP proxy for testing and API analysis.
