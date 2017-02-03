@@ -1,4 +1,5 @@
 ﻿using LinqInfer.Data.Remoting;
+using LinqInfer.Owin;
 using System;
 using System.Threading.Tasks;
 
@@ -10,9 +11,10 @@ namespace XProxy.Core
 
         bool _setup;
 
-        public HttpAppBase(Uri hostAddress)
+        public HttpAppBase(Uri hostAddress, bool bufferResponse = false)
         {
-            _host = hostAddress.CreateHttpApplication();
+            _host = hostAddress.CreateOwinApplication(bufferResponse);
+            //_host = hostAddress.CreateHttpApplication();
         }
 
         internal IOwinApplication ApplicationHost { get { return _host; } }

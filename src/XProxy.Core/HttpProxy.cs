@@ -15,30 +15,38 @@ namespace XProxy.Core
         private readonly Uri[] _targets;
         private readonly RequestAnalysisEngine _analysers;
 
-        public HttpProxy(Uri hostAddress, Uri[] targets) : base(hostAddress)
+        public HttpProxy(Uri hostAddress, Uri[] targets) : base(hostAddress, true)
         {
             _targets = targets;
             _analysers = new RequestAnalysisEngine();
         }
 
         public RequestAnalysisEngine AnalyserEngine { get { return _analysers; } }
-        
+
         protected override void Setup(IOwinApplication host)
         {
             host.AddComponent(async c =>
             {
                 using (_analysers.Pause())
                 {
-                    var id = Guid.NewGuid();
-                    int i = 0;
-                    var tasks = _targets.Select(t => ForwardContext(id, (i++ > 0) ? c.Clone(true) : c, t)).ToList();
+                    try
+                    {
+                        var id = Guid.NewGuid();
+                        int i = 0;
+                        var tasks = _targets.Select(t => ForwardContext(id, (i++ > 0) ? c.Clone(true) : c, t, i > 0)).ToList();
 
-                    await Task.WhenAll(tasks);
+                        await Task.WhenAll(tasks);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        throw ex;
+                    }
                 }
             });
         }
 
-        private async Task ForwardContext(Guid id, IOwinContext context, Uri target)
+        private async Task ForwardContext(Guid id, IOwinContext context, Uri target, bool returnResponse = true)
         {
             var sw = new Stopwatch();
 
@@ -105,7 +113,14 @@ namespace XProxy.Core
 
                 foreach (var header in res.Content.Headers)
                 {
-                    context.Response.Header.Headers[header.Key] = header.Value.ToArray();
+                    try
+                    {
+                        context.Response.Header.Headers[header.Key] = header.Value.ToArray();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error receiving header: {0} {1}", header.Key, ex.Message);
+                    }
                 }
 
                 if (!context.Response.Header.Headers.ContainsKey("Content-Type"))

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LinqInfer.Data.Remoting;
+using LinqInfer.Learning;
+using LinqInfer.Maths.Probability;
 
 namespace XProxy.Core.Analysers
 {
@@ -16,7 +18,7 @@ namespace XProxy.Core.Analysers
 
         public async Task<Stream> Run(RequestContext requestContext)
         {
-            if(requestContext.OwinContext.Response.Header.StatusCode >= 400)
+            if (requestContext.OwinContext.Response.Header.StatusCode >= 400)
             {
                 await Analyse(requestContext);
             }
