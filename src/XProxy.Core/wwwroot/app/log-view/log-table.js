@@ -14,6 +14,21 @@ angular.module('xproxy.logs.table', ['ngRoute'])
 
     var query = $routeParams.query;
     var sourceNum = 0;
+    
+    var iterobj = function (obj) {
+        var results = [];
+
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                results.push({
+                    key: key,
+                    value: obj[key]
+                });
+            }
+        }
+
+        return results;
+    };
 
     $scope.closeCompare = function () {
 
@@ -25,6 +40,7 @@ angular.module('xproxy.logs.table', ['ngRoute'])
     };
 
     $scope.loadSource = function (logEntry) {
+
         var sn = sourceNum;
         sourceNum++;
 
@@ -41,11 +57,20 @@ angular.module('xproxy.logs.table', ['ngRoute'])
         logexplorer.loadSource(logEntry.originHost, logEntry.originPath, logEntry.id, function (data) {
             if (sn % 2 === 0) {
                 $scope.source1 = data;
+                $scope.source1Info = logEntry;
                 $scope.compareStatus = "(Waiting for second url)";
             }
             else {
                 $scope.source2 = data;
+                $scope.source2Info = logEntry;
                 $scope.compareStatus = "";
+
+                logexplorer.loadComparison($scope.source1Info, $scope.source2Info, function (data) {
+                    $scope.comparison = {
+                        request: iterobj(data.children.request.properties),
+                        response: iterobj(data.children.response.properties),
+                    };
+                });
 
                 $("#compare-modal").modal("show");
             }

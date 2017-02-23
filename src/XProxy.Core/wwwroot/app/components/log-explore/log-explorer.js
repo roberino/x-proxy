@@ -21,6 +21,19 @@ function initialiseService($http) {
         });
     }
 
+    function loadComparisonFromApi(req1, req2, callback) {
+        var pathTemplate = "/source/compare?host1=$1&host2=$2&path1=$3&path2=$4&id1=$5&id2=$6";
+        var url = pathTemplate
+            .replace("$1", req1.originHost)
+            .replace("$2", req2.originHost)
+            .replace("$3", req1.originPath)
+            .replace("$4", req2.originPath)
+            .replace("$5", req1.id)
+            .replace("$6", req2.id);
+
+        corsRequest(url, callback);
+    }
+
     function loadTimeHistogramFromApi(callback) {
         corsRequest("/logs/histogram/time-series/all/60000", callback);
     }
@@ -70,6 +83,7 @@ function initialiseService($http) {
 
     return {
         loadLogs: loadLogsFromApi,
+        loadComparison: loadComparisonFromApi,
         loadTree: loadTreeFromApi,
         loadTimeHistogram: loadTimeHistogramFromApi,
         loadTimeHistogramByMime: loadTimeHistogramByMimeFromApi,

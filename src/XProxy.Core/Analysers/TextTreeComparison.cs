@@ -36,49 +36,7 @@ namespace XProxy.Core.Analysers
 
         public TextTreeComparison Compare(TextTree context1, TextTree context2)
         {
-            foreach (var key in context1.Properties.Keys.Concat(context2.Properties.Keys).Distinct())
-            {
-                if (context1.Properties.ContainsKey(key) && context2.Properties.ContainsKey(key))
-                {
-                    if (!string.Equals(context1.Properties[key], context2.Properties[key]))
-                    {
-                        IncrementKey(key, new ComparisonInfo()
-                        {
-                            Differences = 1,
-                            SampleSize = 1,
-                            Score = context1.Properties[key].ComputeLevenshteinDifference(context2.Properties[key]).Value
-                        });
-
-                        GetOrCreatePropertyNode(key).Values.Add(context1.Properties[key]);
-                        GetOrCreatePropertyNode(key).Values.Add(context2.Properties[key]);
-                    }
-                    else
-                    {
-
-                    }
-
-                    continue;
-                }
-
-                IncrementKey(key, new ComparisonInfo() { Missing = 1, SampleSize = 1 });
-            }
-
-            foreach (var key in context1.Children.Keys.Concat(context2.Children.Keys).Distinct())
-            {
-                TextTreeComparison comparison;
-
-                if (!Children.TryGetValue(key, out comparison))
-                {
-                    Children[key] = comparison = new TextTreeComparison();
-                }
-
-                if (context1.Children.ContainsKey(key) && context2.Children.ContainsKey(key))
-                {
-                    comparison.Compare(context1.Children[key], context2.Children[key]);
-                }
-            }
-
-            return this;
+            return Compare(context1).Compare(context2);
         }
 
         public int TotalDiffs
@@ -141,22 +99,40 @@ namespace XProxy.Core.Analysers
 
             public void AddValueForComparison(string value)
             {
-                if (Values.Any() && !Values.Contains(value))
+                if (value == null)
                 {
-                    Differences++;
-
-                    var s = 0d;
-
-                    foreach(var val in Values)
+                    Missing++;
+                }
+                else
+                {
+                    if (Values.Any())
                     {
-                        s += value.ComputeLevenshteinDifference(val).Value;
+                        if (!Values.Contains(value))
+                        {
+                            Differences++;
+
+                            var s = 0d;
+
+                            foreach (var val in Values)
+                            {
+                                s += value.ComputeLevenshteinDifference(val).Value;
+                            }
+
+                            s = s / Values.Count;
+
+                            Score = ((Score * Values.Count) + s) / (Values.Count + 1);
+
+                            Values.Add(value);
+                        }
+                        else
+                        {
+                            Score = (Score * Values.Count) / (Values.Count + 1);
+                        }
                     }
-
-                    s = s / Values.Count;
-
-                    Score = ((Score * Values.Count) + s) / (Values.Count + 1);
-
-                    Values.Add(value);
+                    else
+                    {
+                        Values.Add(value);
+                    }
                 }
 
                 SampleSize++;
