@@ -97,10 +97,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysers\HttpComparer.cs" />
+    <Compile Include="Analysers\TextTree.cs" />
     <Compile Include="Analysers\DeferredExecution.cs" />
     <Compile Include="Analysers\FaultAnalyser.cs" />
     <Compile Include="Analysers\HttpLogger.cs" />
     <Compile Include="Analysers\LogEntry.cs" />
+    <Compile Include="Analysers\TextTreeComparison.cs" />
     <Compile Include="Analysers\RequestFeatureMap.cs" />
     <Compile Include="Analysers\RequestNode.cs" />
     <Compile Include="Analysers\RequestVector.cs" />

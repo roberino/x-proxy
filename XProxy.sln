@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{83B18737-0
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XProxy.Tests", "tests\XProxy.Tests\XProxy.Tests.csproj", "{A2D3D62F-E0BC-4591-8502-47B870D433E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1E4DD7E6-C456-4ABF-8EE8-C5032F30EC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E4DD7E6-C456-4ABF-8EE8-C5032F30EC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E4DD7E6-C456-4ABF-8EE8-C5032F30EC30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2D3D62F-E0BC-4591-8502-47B870D433E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2D3D62F-E0BC-4591-8502-47B870D433E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2D3D62F-E0BC-4591-8502-47B870D433E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2D3D62F-E0BC-4591-8502-47B870D433E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

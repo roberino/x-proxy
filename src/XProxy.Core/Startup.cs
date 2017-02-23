@@ -14,15 +14,18 @@ namespace XProxy.Core
         {
             var baseDir = baseDataDir;
             var logger = new HttpLogger(baseDir);
+            var store = new RequestStore(baseDir, logger);
 
             apps = new List<HttpAppBase>();
 
             var proxy = new HttpProxy(proxyUri, targetUris);
 
             {
-                proxy.AnalyserEngine.Register(new RequestStore(baseDir, logger));
+                proxy.AnalyserEngine.Register(store);
                 proxy.AnalyserEngine.Register(logger);
                 proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
+                proxy.AnalyserEngine.Register(new HttpComparer(store));
+
                 //proxy.AnalyserEngine.Register(new RequestFeatureMap(baseDir, logger));
 
                 proxy.ApplicationHost.StatusChanged += (s, v) =>

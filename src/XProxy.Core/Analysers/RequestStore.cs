@@ -39,6 +39,7 @@ namespace XProxy.Core.Analysers
         public async Task<Stream> Run(RequestContext requestContext)
         {
             var file = GetPath(requestContext);
+            var fileTree = new FileInfo(file.FullName + ".json");
 
             if (!file.Directory.Exists)
             {
@@ -55,29 +56,31 @@ namespace XProxy.Core.Analysers
                 }
             }
 
+            using (var mutex = new Mutex(true, file.Name))
+            {
+                mutex.WaitOne(5000);
+
+                using (var fs = fileTree.OpenWrite())
+                {
+                    var tree = TextTree.Create(requestContext);
+
+                    await tree.Write(fs);
+                }
+            }
+
             requestContext.RequestBlob.Position = 0;
 
             return requestContext.RequestBlob;
         }
 
-        public void Dispose()
-        {
-            _logger.Dispose();
-
-            foreach(var i in _indexes)
-            {
-                i.Value.Dispose();
-            }
-        }
-
-        private async Task<SourceFile> GetRequestSource(string host, string path, Guid id)
+        public async Task<SourceFile> GetRequestSource(string host, string path, Guid id)
         {
             var uri = new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path);
             var fileInfo = GetPath(uri, id);
 
             if (!fileInfo.Exists)
             {
-                fileInfo = fileInfo.Directory.GetFiles().FirstOrDefault(f => f.Name.StartsWith(id.ToString()));
+                fileInfo = fileInfo.Directory.GetFiles("*.req").FirstOrDefault(f => f.Name.StartsWith(id.ToString()));
 
                 if (fileInfo == null)
                 {
@@ -97,12 +100,43 @@ namespace XProxy.Core.Analysers
             }
         }
 
+        public async Task<TextTree> GetRequestSourceTree(string host, string path, Guid id)
+        {
+            var uri = new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path);
+            var fileInfo = GetPath(uri, id, ".json");
+
+            if (!fileInfo.Exists)
+            {
+                fileInfo = fileInfo.Directory.GetFiles("*.json").FirstOrDefault(f => f.Name.StartsWith(id.ToString()));
+
+                if (fileInfo == null)
+                {
+                    return null;
+                }
+            }
+
+            using (var stream = fileInfo.OpenRead())
+            {
+                return await TextTree.ReadAsync(stream);
+            }
+        }
+
+        public void Dispose()
+        {
+            _logger.Dispose();
+
+            foreach(var i in _indexes)
+            {
+                i.Value.Dispose();
+            }
+        }
+
         private FileInfo GetPath(RequestContext context)
         {
             return GetPath(context.OriginUrl, context.Id);
         }
 
-        private FileInfo GetPath(Uri uri, Guid id)
+        private FileInfo GetPath(Uri uri, Guid id, string ext = null)
         {
             var paths = uri.PathAndQuery.Split('/');
             var invalidNameChars = Path.GetInvalidFileNameChars();
@@ -118,7 +152,7 @@ namespace XProxy.Core.Analysers
             var path = Path.Combine(
              new [] { _baseDir.FullName, uri.Host }
             .Concat(cleanPathArray)
-            .Concat(new[] { id.ToString() + '_' + name + ".req" }).ToArray());
+            .Concat(new[] { id.ToString() + '_' + name + ".req" + ext }).ToArray());
 
             return new FileInfo(path);
         }
