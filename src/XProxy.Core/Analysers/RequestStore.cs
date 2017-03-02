@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using XProxy.Core.Analysers.Parsers;
 
 namespace XProxy.Core.Analysers
 {
@@ -62,7 +63,7 @@ namespace XProxy.Core.Analysers
 
                 using (var fs = fileTree.OpenWrite())
                 {
-                    var tree = TextTree.Create(requestContext);
+                    var tree = OwinContextToTextTree.Create(requestContext);
 
                     await tree.Write(fs);
                 }
@@ -100,6 +101,21 @@ namespace XProxy.Core.Analysers
             }
         }
 
+        public async Task<IList<TextTree>> GetRequestSourceTrees(string host, string path, int max = 5)
+        {
+            var paths = FindPaths(new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path), ".json");
+
+            var streams = paths.Take(max).Select(p => p.OpenRead()).ToList();
+
+            var tasks = streams.Select(s => TextTree.ReadAsync(s)).ToList();
+
+            await Task.WhenAll(tasks);
+
+            foreach (var stream in streams) stream.Dispose();
+
+            return tasks.Select(t => t.Result).ToList();
+        }
+
         public async Task<TextTree> GetRequestSourceTree(string host, string path, Guid id)
         {
             var uri = new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path);
@@ -134,6 +150,19 @@ namespace XProxy.Core.Analysers
         private FileInfo GetPath(RequestContext context)
         {
             return GetPath(context.OriginUrl, context.Id);
+        }
+
+        private IEnumerable<FileInfo> FindPaths(Uri uri, string ext = null)
+        {
+            var examplePath = GetPath(uri, Guid.Empty, ext);
+
+            var path = examplePath.Name.Split('_').Last();
+
+            return examplePath
+                .Directory
+                .GetFiles("*" + examplePath.Extension)
+                .Where(f => f.Name.EndsWith(path))
+                .OrderByDescending(f => f.LastWriteTimeUtc);
         }
 
         private FileInfo GetPath(Uri uri, Guid id, string ext = null)

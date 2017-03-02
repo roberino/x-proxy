@@ -20,9 +20,9 @@ angular.module('xproxy.logs.tree', ['ngRoute'])
         $scope.currentNode = branch;
     };
 
-    $scope.getPathRouteQuery = function (branch) {
+    $scope.getPathRouteQuery = function (branch, prefix) {
         if (branch && branch.data)
-            return "path-" + window.btoa(branch.data.fullPath);
+            return (prefix || '') + window.btoa(branch.data.fullPath);
     };
     
     function translateNode(node, depth) {

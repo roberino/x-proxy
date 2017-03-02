@@ -10,7 +10,13 @@
         <div class="col-md-6" ng-show="currentNode">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2><a href="#!/logs/{{getPathRouteQuery(currentNode)}}">{{currentNode.label}}</a></h2>
+                    <h2><a href="#!/logs/{{getPathRouteQuery(currentNode, 'path-')}}">{{currentNode.label}}</a></h2>
+
+                    <span ng-if="currentNode.children.length == 0 && currentNode.data.requestCount > 1">
+                        <a href="#!/compare/{{currentNode.data.hosts[0]}}/{{currentNode.data.hosts.length > 1 ? currentNode.data.hosts[1] : '-'}}/{{getPathRouteQuery(currentNode)}}">
+                            Compare
+                        </a>
+                    </span>
                 </div>
                 <div class="panel-body">
                     <table class="table table-striped">
