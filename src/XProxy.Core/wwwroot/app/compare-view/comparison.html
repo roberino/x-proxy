@@ -40,6 +40,18 @@
                     <source-diff ng-sh="item.value.values.length == 2" id="diff1" text1="item.value.values[0]" text2="item.value.values[1]"></source-diff>
                 </td>
             </tr>
+            <tr><th colspan="6">Reponse body</th></tr>
+            <tr ng-repeat="item in comparison.responseBody">
+                <td><span ng-class="item.value.differences == 0 ? 'label-info' : 'label-danger'">{{item.key}}</span></td>
+                <td>{{item.value.sampleSize}}</td>
+                <td>{{item.value.differences}}</td>
+                <td>{{item.value.missing}}</td>
+                <td>{{item.value.score}}</td>
+                <td>
+                    <span ng-if="item.value.values.length != 2" ng-repeat="val in item.value.values">{{val}} </span>
+                    <source-diff ng-sh="item.value.values.length == 2" id="diff1" text1="item.value.values[0]" text2="item.value.values[1]"></source-diff>
+                </td>
+            </tr>
         </table>
     </div>
 </div>

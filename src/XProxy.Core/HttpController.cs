@@ -34,7 +34,7 @@ namespace XProxy.Core
 
             _api.AddErrorHandler((c, e) =>
             {
-                c.Response.CreateTextResponse().Write(e.Message);
+                c.Response.CreateTextResponse().Write(e.ToString());
                 return Task.FromResult(true);
             });
         }

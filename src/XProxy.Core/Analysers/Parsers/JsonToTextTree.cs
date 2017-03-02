@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace XProxy.Core.Analysers.Parsers
 {
@@ -11,15 +14,69 @@ namespace XProxy.Core.Analysers.Parsers
             return mime.Contains("json");
         }
 
-        public static TextTree Read(Stream data)
+        public static TextTree Read(Stream data, Encoding encoding)
         {
             var tree = new TextTree();
 
-            using (var reader = new JsonTextReader(new StreamReader(data)))
+            using (var reader = new StreamReader(data, encoding, true, 1024, true))
             {
-                var json = JObject.ReadFrom(reader);
+                {
+                    int i = 0;
 
-                Read(tree, json);
+                    while (true)
+                    {
+                        var line = reader.ReadLine();
+
+                        if (line == null) return tree;
+
+                        if (string.IsNullOrWhiteSpace(line))
+                        {
+                            i++;
+                        }
+
+                        if (i > 1) // expecting 2 request + 2 response header lines
+                        {
+                            bool startOfJsonFound = false;
+
+                            while (!reader.EndOfStream)
+                            {
+                                var nextChar = reader.Peek();
+
+                                if (nextChar == '[' || nextChar == '{')
+                                {
+                                    startOfJsonFound = true;
+                                    break;
+                                }
+                            }
+
+                            if (!startOfJsonFound) return tree;
+
+                            break;
+                        }
+                    }
+                }
+
+                //var jsonData = reader.ReadToEnd();
+
+                using (var jsonReader = new JsonTextReader(reader))
+                {
+                    try
+                    {
+                        //var json = JObject.Parse(jsonData);
+
+                        var json = JObject.Load(jsonReader);
+
+                        Read(tree, json);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex);
+
+                        var remaining = reader.ReadToEnd();
+
+                        Console.WriteLine(remaining);
+                    }
+                }
             }
 
             return tree;
@@ -42,7 +99,7 @@ namespace XProxy.Core.Analysers.Parsers
         {
             foreach (var prop in json.Properties())
             {
-                switch (prop.Type)
+                switch (prop.Value.Type)
                 {
                     case JTokenType.Object:
                         {

@@ -1,5 +1,6 @@
 ﻿using LinqInfer.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace XProxy.Core.Analysers

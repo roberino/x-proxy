@@ -29,7 +29,14 @@ namespace XProxy.Core.Analysers.Parsers
             {
                 try
                 {
-                    response.Children["body"] = JsonToTextTree.Read(context.OwinContext.Response.Content);
+                    if (context.RequestBlob.CanRead && context.RequestBlob.CanSeek)
+                    {
+                        context.RequestBlob.Position = 0;
+
+                        response.Children["body"] = JsonToTextTree.Read(context.RequestBlob, context.OwinContext.Response.Header.TextEncoding);
+
+                        context.RequestBlob.Position = 0;
+                    }
                 }
                 catch (Exception ex)
                 {

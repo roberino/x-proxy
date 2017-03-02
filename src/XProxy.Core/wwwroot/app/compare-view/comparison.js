@@ -35,6 +35,7 @@ angular.module('xproxy.logs.compare', ['ngRoute'])
             $scope.comparison = {
                 request: iterobj(data.children.request.properties),
                 response: iterobj(data.children.response.properties),
+                responseBody: data.children.response.children.body ? iterobj(data.children.response.children.body.properties) : []
             };
 
             $scope.compareStatus = "";

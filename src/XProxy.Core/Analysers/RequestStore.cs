@@ -105,7 +105,7 @@ namespace XProxy.Core.Analysers
         {
             var paths = FindPaths(new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path), ".json");
 
-            var streams = paths.Take(max).Select(p => p.OpenRead()).ToList();
+            var streams = paths.OrderByDescending(p => p.LastAccessTimeUtc).Where(p => p.Length > 0).Take(max).Select(p => p.OpenRead()).ToList();
 
             var tasks = streams.Select(s => TextTree.ReadAsync(s)).ToList();
 
