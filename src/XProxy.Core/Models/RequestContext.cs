@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace XProxy.Core
+namespace XProxy.Core.Models
 {
     public class RequestContext : IDisposable
     {

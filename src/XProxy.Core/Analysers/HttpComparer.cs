@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
@@ -28,13 +29,14 @@ namespace XProxy.Core.Analysers
                     id2 = string.Empty
                 }, x => Compare(x.host1, x.host2, x.path1, x.path2, x.id1, x.id2));
 
-            api.Bind("/source/compare/{host1}/{host2}?path=a", Verb.Get)
+            api.Bind("/source/compare/{host1}/{host2}?path=a&flatten=true", Verb.Get)
                 .To(new
                 {
                     host1 = string.Empty,
                     host2 = string.Empty,
                     path = string.Empty,
-                }, x => Compare(x.host1, x.host2, x.path, x.path));
+                    flatten = true
+                }, x => Compare(x.host1, x.host2, x.path, x.path, x.flatten));
 
             api.Bind("/source/compare/{host}?path=a", Verb.Get)
                 .To(new
@@ -64,7 +66,7 @@ namespace XProxy.Core.Analysers
             return compare;
         }
 
-        public async Task<TextTreeComparison> Compare(string host1, string host2, string path1, string path2, int max = 5)
+        public async Task<TextTreeComparison> Compare(string host1, string host2, string path1, string path2, bool flatten = false, int max = 5)
         {
             var compare = new TextTreeComparison();
 
@@ -77,6 +79,8 @@ namespace XProxy.Core.Analysers
             {
                 compare.Compare(tree);
             }
+
+            if (flatten) return compare.Flatten();
 
             return compare;
         }

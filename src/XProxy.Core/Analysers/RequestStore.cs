@@ -6,14 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using XProxy.Core.Analysers.Parsers;
+using XProxy.Core.Converters;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
-    class RequestStore : IRequestAnalyser, IHasHttpInterface
+    class RequestStore : IRequestAnalyser, IHasHttpInterface, IRequestStore
     {
         private readonly DirectoryInfo _baseDir;
-        private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
+        private readonly IDictionary<string, AutoInvokerV1<IDocumentIndex>> _indexes;
         private readonly HttpLogger _logger;
 
         public RequestStore(DirectoryInfo baseDir, HttpLogger logger)
@@ -22,7 +23,7 @@ namespace XProxy.Core.Analysers
 
             if (!_baseDir.Exists) _baseDir.Create();
 
-            _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
+            _indexes = new Dictionary<string, AutoInvokerV1<IDocumentIndex>>();
             _logger = logger;
         }
 

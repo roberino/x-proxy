@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XProxy.Core
+namespace XProxy.Core.Converters
 {
     public class JsonSerialiser : IObjectSerialiser
     {

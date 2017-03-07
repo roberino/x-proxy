@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using LinqInfer.Data.Remoting;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
@@ -13,14 +14,14 @@ namespace XProxy.Core.Analysers
     {
         private readonly DirectoryInfo _baseDir;
         private readonly HttpLogger _logger;
-        private readonly IDictionary<string, AutoInvoker<IDocumentIndex>> _indexes;
+        private readonly IDictionary<string, AutoInvokerV1<IDocumentIndex>> _indexes;
         private readonly DeferredExecution _deferredTasks;
 
         public TextIndexer(DirectoryInfo baseDir, HttpLogger logger)
         {
             _baseDir = baseDir;
             _logger = logger;
-            _indexes = new Dictionary<string, AutoInvoker<IDocumentIndex>>();
+            _indexes = new Dictionary<string, AutoInvokerV1<IDocumentIndex>>();
             _deferredTasks = new DeferredExecution(x =>
             {
                 Console.WriteLine(x.Message);
@@ -104,11 +105,11 @@ namespace XProxy.Core.Analysers
             }
         }
 
-        private AutoInvoker<IDocumentIndex> GetIndexInvoker(string host)
+        private AutoInvokerV1<IDocumentIndex> GetIndexInvoker(string host)
         {
             Contract.Requires(host != null);
 
-            AutoInvoker<IDocumentIndex> indexInvoker;
+            AutoInvokerV1<IDocumentIndex> indexInvoker;
 
             var key = host.ToLower();
 
@@ -116,7 +117,7 @@ namespace XProxy.Core.Analysers
             {
                 var file = GetIndexFile(host);
 
-                _indexes[key] = indexInvoker = new AutoInvoker<IDocumentIndex>(i => DeferredSave(i, host), new TokenisedTextDocument[] { }.CreateIndex());
+                _indexes[key] = indexInvoker = new AutoInvokerV1<IDocumentIndex>(i => DeferredSave(i, host), new TokenisedTextDocument[] { }.CreateIndex());
 
                 if (file.Exists)
                 {

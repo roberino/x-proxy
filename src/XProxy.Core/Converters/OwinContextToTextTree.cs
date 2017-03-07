@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using XProxy.Core.Models;
 
-namespace XProxy.Core.Analysers.Parsers
+namespace XProxy.Core.Converters
 {
     public static class OwinContextToTextTree
     {

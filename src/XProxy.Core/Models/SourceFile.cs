@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XProxy.Core.Analysers
+namespace XProxy.Core.Models
 {
     public class SourceFile
     {

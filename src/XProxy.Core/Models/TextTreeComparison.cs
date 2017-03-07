@@ -1,9 +1,10 @@
 ﻿using LinqInfer.Text;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace XProxy.Core.Analysers
+namespace XProxy.Core.Models
 {
     public class TextTreeComparison
     {
@@ -38,6 +39,30 @@ namespace XProxy.Core.Analysers
         public TextTreeComparison Compare(TextTree context1, TextTree context2)
         {
             return Compare(context1).Compare(context2);
+        }
+
+        public TextTreeComparison Flatten()
+        {
+            var tree = new TextTreeComparison();
+
+            Flatten(tree, null, this);
+
+            return tree;
+        }
+
+        private void Flatten(TextTreeComparison root, string path, TextTreeComparison node)
+        {
+            Func<string, string> key = (k => path == null ? k : path + " > " + k);
+
+            foreach (var prop in node.Properties)
+            {
+                root.Properties[key(prop.Key)] = prop.Value;
+            }
+
+            foreach (var prop in node.Children)
+            {
+                Flatten(root, key(prop.Key), prop.Value);
+            }
         }
 
         public int TotalDiffs

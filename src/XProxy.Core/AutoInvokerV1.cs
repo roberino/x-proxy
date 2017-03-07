@@ -3,7 +3,7 @@ using System.Timers;
 
 namespace XProxy.Core
 {
-    class AutoInvoker<T> : IDisposable
+    class AutoInvokerV1<T> : IDisposable
     {
         private readonly Timer _timer;
         private readonly Action<T> _action;
@@ -13,7 +13,7 @@ namespace XProxy.Core
         private bool _isDirty;
         private bool _isPaused;
 
-        public AutoInvoker(Action<T> action, T state, Func<T, bool> triggerCheck = null, TimeSpan? interval = null)
+        public AutoInvokerV1(Action<T> action, T state, Func<T, bool> triggerCheck = null, TimeSpan? interval = null)
         {
             _action = action;
             _state = state;

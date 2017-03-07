@@ -34,17 +34,18 @@ function initialiseService($http) {
         corsRequest(url, callback);
     }
 
-    function loadHostComparisonFromApi(host1, host2, path, callback) {
+    function loadHostComparisonFromApi(host1, host2, path, callback, flatten) {
         var url = "";
 
         if (host2 !== '-') {
-            var pathTemplate = "/source/compare/$1/$2?path=$3";
+            var pathTemplate = "/source/compare/$1/$2?path=$3&flatten=$4";
 
             url = pathTemplate
                 .replace("$1", host1)
                 .replace("$2", host2)
-                .replace("$3", path);
-        }
+                .replace("$3", path)
+                .replace("$4", flatten ? 'true' : 'false');
+        }   
         else {
             var pathTemplate = "/source/compare/$1?path=$2";
 

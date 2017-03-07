@@ -31,16 +31,23 @@ angular.module('xproxy.logs.compare', ['ngRoute'])
         $scope.loading = true;
         $scope.compareStatus = "(Loading)";
 
+        var flatten = $scope.flatten;
+
         logexplorer.loadHostComparison(host1, host2, path, function (data) {
-            $scope.comparison = {
-                request: iterobj(data.children.request.properties),
-                response: iterobj(data.children.response.properties),
-                responseBody: data.children.response.children.body ? iterobj(data.children.response.children.body.properties) : []
-            };
+            if ($scope.flatten) {
+                $scope.comparison = { request: iterobj(data.properties) };
+            }
+            else {
+                $scope.comparison = {
+                    request: iterobj(data.children.request.properties),
+                    response: iterobj(data.children.response.properties),
+                    responseBody: data.children.response.children.body ? iterobj(data.children.response.children.body.properties) : []
+                };
+            }
 
             $scope.compareStatus = "";
             $scope.loading = false;
-        });
+        }, $scope.flatten);
     };
 
     $scope.source1 = {
@@ -52,6 +59,8 @@ angular.module('xproxy.logs.compare', ['ngRoute'])
         originHost: $routeParams.originHost2,
         path: $scope.source1.path
     };
+
+    $scope.flatten = true;
 
     loadFunc($scope.source1.originHost, $scope.source2.originHost, $scope.source1.path);
 }]);

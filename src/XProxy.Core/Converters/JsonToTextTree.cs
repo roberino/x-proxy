@@ -4,8 +4,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using XProxy.Core.Models;
 
-namespace XProxy.Core.Analysers.Parsers
+namespace XProxy.Core.Converters
 {
     class JsonToTextTree
     {

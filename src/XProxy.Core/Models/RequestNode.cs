@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace XProxy.Core.Analysers
+namespace XProxy.Core.Models
 {
     public class RequestNode
     {

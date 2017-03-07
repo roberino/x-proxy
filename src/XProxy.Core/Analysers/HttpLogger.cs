@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
-    class HttpLogger : IRequestAnalyser, IHasHttpInterface
+    class HttpLogger : IRequestAnalyser, IHasHttpInterface, IHttpLog
     {
         private const int DefaultReadSize = 4096 * 6;
         private readonly TextWriter _logger;
