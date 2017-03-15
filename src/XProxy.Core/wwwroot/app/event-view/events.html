@@ -1,0 +1,20 @@
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Created</th>
+                <th>Path</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="eventItem in eventData.items">
+            <td>{{eventItem.published | date: 'dd-MMM-yy hh:mm:ss'}}</td>
+            <td>
+                <a href="#!{{getComparisonPath(eventItem)}}">
+                    {{eventItem.title}}
+                </a>
+            </td>
+            <td>{{eventItem.eventType}}</td>
+        </tr>
+    </table>
+</div>

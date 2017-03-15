@@ -1,22 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace XProxy.Core.Events
 {
     public class PublishedEvent
     {
-        public PublishedEvent(string title, Uri url = null)
+        protected PublishedEvent()
         {
-            Id = Guid.NewGuid();
-            Published = DateTime.UtcNow;
-            Title = title;
+            Data = new Dictionary<string, object>();
         }
 
-        public Guid Id { get; protected set; }
+        public PublishedEvent(string title, Uri url = null)
+        {
+            Id = Guid.NewGuid().ToString();
+            Published = DateTime.UtcNow;
+            Title = title;
+            Url = url;
+            Data = new Dictionary<string, object>();
+        }
 
-        public DateTime Published { get; protected set; }
+        public PublishedEvent(string id, string title, Uri url = null)
+        {
+            Id = id;
+            Published = DateTime.UtcNow;
+            Title = title;
+            Url = url;
+            Data = new Dictionary<string, object>();
+        }
 
-        public string Title { get; protected set; }
+        public string Id { get; set; }
 
-        public Uri Url { get; protected set; }
+        public DateTime Published { get; set; }
+
+        public string Title { get; set; }
+
+        public string EventType { get; set; }
+
+        public Uri Url { get; set; }
+
+        public IDictionary<string, object> Data { get; set; }
     }
 }

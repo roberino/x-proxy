@@ -3,32 +3,38 @@ using System.Collections.Generic;
 
 namespace XProxy.Core.Jobs
 {
-    public class Runner : IDisposable
+    public class JobRunner : IDisposable
     {
         private readonly IList<AutoInvokerV2<ExecutionContext>> _jobs;
         private readonly ExecutionContext _context;
+        private bool _sleeping;
 
-        public Runner(ExecutionContext context)
+        public JobRunner(ExecutionContext context)
         {
             _context = context;
+            _sleeping = true;
             _jobs = new List<AutoInvokerV2<ExecutionContext>>();
         }
 
+        public ExecutionContext Context { get { return _context; } }
+
         public void Register(ContinuousJob job)
         {
-            _jobs.Add(new AutoInvokerV2<ExecutionContext>(c => job.Execute(c), _context));
+            _jobs.Add(new AutoInvokerV2<ExecutionContext>(c => job.Execute(c), _context, _ => !_sleeping));
         }
 
         public void Start()
         {
-            foreach(var job in _jobs)
+            _sleeping = false;
+            foreach (var job in _jobs)
             {
-                job.Run();
+                job.Trigger();
             }
         }
 
         public void Stop()
         {
+            _sleeping = true;
             foreach (var job in _jobs)
             {
                 job.Pause();

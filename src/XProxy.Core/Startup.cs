@@ -3,12 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using XProxy.Core.Jobs;
+using XProxy.Core.Events;
 
 namespace XProxy.Core
 {
     public class Startup : IDisposable
     {
-        private readonly List<HttpAppBase> apps;
+        private readonly List<HttpAppBase> _apps;
+        private readonly JobRunner _jobRunner;
 
         public Startup(DirectoryInfo baseDataDir, Uri proxyUri, Uri[] targetUris, Uri controlUri, Uri uiUri = null)
         {
@@ -16,9 +19,21 @@ namespace XProxy.Core
             var logger = new HttpLogger(baseDir);
             var store = new RequestStore(baseDir, logger);
 
-            apps = new List<HttpAppBase>();
+            _jobRunner = new JobRunner(new ExecutionContext()
+            {
+                BaseDirectory = baseDir,
+                EventDispatcher = new FileSystemEventDispatcher(baseDir),
+                HttpLogs = logger,
+                RequestStore = store,
+                ServiceEndpoint = controlUri,
+                Logger = Console.Out
+            });
+
+            _apps = new List<HttpAppBase>();
 
             var proxy = new HttpProxy(proxyUri, targetUris);
+
+            _jobRunner.Register(new DiffEngine());
 
             {
                 proxy.AnalyserEngine.Register(store);
@@ -35,6 +50,8 @@ namespace XProxy.Core
 
                 var control = new HttpController(controlUri, proxy);
 
+                control.RegisterHttpService((IHasHttpInterface)_jobRunner.Context.EventDispatcher);
+
                 Console.WriteLine("Binding to {0}", proxyUri);
                 Console.WriteLine("Control via {0}", controlUri);
 
@@ -44,36 +61,42 @@ namespace XProxy.Core
 
                     control.AllowOrigin(uiUri);
 
-                    apps.Add(app);
+                    _apps.Add(app);
 
                     Console.WriteLine("Admin portal via {0}", uiUri);
                 }
 
-                apps.Add(proxy);
-                apps.Add(control);
+                _apps.Add(proxy);
+                _apps.Add(control);
             }
         }
 
         public void Start()
         {
-            foreach (var app in apps) app.Start();
+            foreach (var app in _apps) app.Start();
+
+            _jobRunner.Start();
         }
 
         public void Stop()
         {
-            foreach (var app in apps) app.Stop();
+            foreach (var app in _apps) app.Stop();
+
+            _jobRunner.Stop();
         }
 
         public void Dispose()
         {
-            foreach (var app in apps) app.Dispose();
+            foreach (var app in _apps) app.Dispose();
+
+            _jobRunner.Dispose();
         }
 
         public override string ToString()
         {
             var status = new StringBuilder();
 
-            foreach (var app in apps)
+            foreach (var app in _apps)
             {
                 status.AppendFormat("{0} {1}\n", app.ApplicationHost.BaseEndpoint, app.ApplicationHost.Status);
             }

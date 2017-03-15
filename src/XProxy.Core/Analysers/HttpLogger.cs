@@ -69,7 +69,7 @@ namespace XProxy.Core.Analysers
 
         public ResourceList<string> ListHosts()
         {
-            return new ResourceList<string>(_baseDir.GetDirectories().Select(d => d.Name));
+            return new ResourceList<string>(_baseDir.GetDirectories().Where(d => !d.Name.StartsWith("_")).Select(d => d.Name));
         }
 
         public async Task<DiscretizedSet<DateTime, TimeSpan, LogEntry>> GetHistogram(double span)

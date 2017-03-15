@@ -21,6 +21,14 @@ function initialiseService($http) {
         });
     }
 
+    function loadEventsFromApi(clientId, callback) {
+        var pathTemplate = "/events/$clientId";
+        var url = pathTemplate
+            .replace("$clientId", clientId);
+
+        corsRequest(url, callback);
+    }
+
     function loadComparisonFromApi(req1, req2, callback) {
         var pathTemplate = "/source/compare?host1=$1&host2=$2&path1=$3&path2=$4&id1=$5&id2=$6";
         var url = pathTemplate
@@ -112,6 +120,7 @@ function initialiseService($http) {
         loadTimeHistogramByMime: loadTimeHistogramByMimeFromApi,
         filterByPath: loadUrlFilterFromApi,
         loadSource: loadSourceFromApi,
+        loadEvents: loadEventsFromApi,
         search: searchFromApi,
         onSearch: onSearch,
         currentSearchText: function () { return currentSearch; }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LinqInfer.Data.Remoting;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using LinqInfer.Data.Remoting;
-using LinqInfer.Learning;
-using LinqInfer.Maths.Probability;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {

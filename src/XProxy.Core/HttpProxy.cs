@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using XProxy.Core.Models;
 
 namespace XProxy.Core
 {

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using XProxy.Core.Events;
 
 namespace XProxy.Core.Jobs
@@ -14,5 +15,7 @@ namespace XProxy.Core.Jobs
         public IEventDispatcher EventDispatcher { get; internal set; }
 
         public TextWriter Logger { get; internal set; }
+
+        public Uri ServiceEndpoint { get; internal set; }
     }
 }
