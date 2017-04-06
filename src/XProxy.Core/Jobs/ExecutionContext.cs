@@ -6,7 +6,7 @@ namespace XProxy.Core.Jobs
 {
     public class ExecutionContext
     {
-        public DirectoryInfo BaseDirectory { get; internal set; }
+        public SessionStore SessionStore { get; internal set; }
 
         public IHttpLog HttpLogs { get; internal set; }
 

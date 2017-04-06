@@ -61,8 +61,6 @@ namespace XProxy.Core
             {
                 lock (queue) next = queue.Dequeue();
 
-                Stream data = null;
-
                 foreach (var analyser in _analysers)
                 {
                     Console.WriteLine("Anaylsing {0} ({1})", next.OriginUrl, analyser);
@@ -71,9 +69,7 @@ namespace XProxy.Core
                     {
                         var runTask = analyser.Run(next);
 
-                        data = runTask.Result;
-
-                        next = next.Chain(data);
+                        next = next.Chain(runTask.Result);
                     }
                     catch (Exception ex)
                     {

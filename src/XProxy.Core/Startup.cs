@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using XProxy.Core.Jobs;
 using XProxy.Core.Events;
+using XProxy.Core.Analysers.Faults;
 
 namespace XProxy.Core
 {
@@ -13,16 +14,20 @@ namespace XProxy.Core
         private readonly List<HttpAppBase> _apps;
         private readonly JobRunner _jobRunner;
 
-        public Startup(DirectoryInfo baseDataDir, Uri proxyUri, Uri[] targetUris, Uri controlUri, Uri uiUri = null)
+        public Startup(DirectoryInfo baseDataDir, Uri proxyUri, Uri[] targetUris, Uri controlUri, Uri uiUri = null) : this(SessionStore.CreateSessionStore(baseDataDir), proxyUri, targetUris, controlUri, uiUri)
         {
-            var baseDir = baseDataDir;
-            var logger = new HttpLogger(baseDir);
-            var store = new RequestStore(baseDir, logger);
+        }
+
+        public Startup(SessionStore sessionStore, Uri proxyUri, Uri[] targetUris, Uri controlUri, Uri uiUri = null)
+        {
+            var baseStore = sessionStore;
+            var logger = new HttpLogger(baseStore.BaseStorageDirectory);
+            var store = new RequestStore(baseStore.BaseStorageDirectory, logger);
 
             _jobRunner = new JobRunner(new ExecutionContext()
             {
-                BaseDirectory = baseDir,
-                EventDispatcher = new FileSystemEventDispatcher(baseDir),
+                SessionStore = baseStore,
+                EventDispatcher = new FileSystemEventDispatcher(baseStore.BaseStorageDirectory),
                 HttpLogs = logger,
                 RequestStore = store,
                 ServiceEndpoint = controlUri,
@@ -33,12 +38,15 @@ namespace XProxy.Core
 
             var proxy = new HttpProxy(proxyUri, targetUris);
 
+            var faultAnalysis = new FaultAnalyser(sessionStore);
+
             _jobRunner.Register(new DiffEngine());
 
             {
                 proxy.AnalyserEngine.Register(store);
+                // proxy.AnalyserEngine.Register(faultAnalysis);
                 proxy.AnalyserEngine.Register(logger);
-                proxy.AnalyserEngine.Register(new TextIndexer(baseDir, logger));
+                proxy.AnalyserEngine.Register(new TextIndexer(baseStore.BaseStorageDirectory, logger));
                 proxy.AnalyserEngine.Register(new HttpComparer(store));
 
                 //proxy.AnalyserEngine.Register(new RequestFeatureMap(baseDir, logger));

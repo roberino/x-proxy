@@ -60,11 +60,11 @@ namespace XProxy.Core.Analysers
                 .To(1000d, x => GetHistogramGroupedByMime(x));
         }
 
-        public async Task<Stream> Run(RequestContext requestContext)
+        public async Task<RequestContext> Run(RequestContext requestContext)
         {
             await LogRequest(requestContext);
 
-            return requestContext.RequestBlob;
+            return requestContext;
         }
 
         public ResourceList<string> ListHosts()

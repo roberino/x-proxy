@@ -7,6 +7,6 @@ namespace XProxy.Core
 {
     public interface IRequestAnalyser : IDisposable
     {
-        Task<Stream> Run(RequestContext requestContext);
+        Task<RequestContext> Run(RequestContext requestContext);
     }
 }

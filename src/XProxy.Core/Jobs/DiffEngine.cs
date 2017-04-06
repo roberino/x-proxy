@@ -12,6 +12,8 @@ namespace XProxy.Core.Jobs
 
         public override async Task Execute(ExecutionContext context)
         {
+            if (context.SessionStore.LastWriteTime > DateTime.UtcNow.AddSeconds(-10)) return;
+
             var lrt = _lastRuntime.GetValueOrDefault(DateTime.UtcNow.AddMinutes(-1));
 
             var recent = await context.HttpLogs.GetRecentRequests(-1, e => e.Date >= lrt);

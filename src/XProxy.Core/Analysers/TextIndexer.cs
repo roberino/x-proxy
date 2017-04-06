@@ -29,22 +29,23 @@ namespace XProxy.Core.Analysers
             });
         }
 
-        public Task<Stream> Run(RequestContext requestContext)
+        public Task<RequestContext> Run(RequestContext requestContext)
         {
-            var tokens = requestContext.RequestBlob.Tokenise().ToList();
-            var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), tokens);
-
-            var indexInvoker = GetIndexInvoker(requestContext.OriginUrl.Host);
-
-            lock (indexInvoker)
+            using (var stream = requestContext.GetRequestStream())
             {
-                indexInvoker.State.IndexDocument(doc);
-                indexInvoker.Trigger();
+                var tokens = stream.Tokenise().ToList();
+                var doc = new TokenisedTextDocument(requestContext.OriginUrl.ToString(), tokens);
+
+                var indexInvoker = GetIndexInvoker(requestContext.OriginUrl.Host);
+
+                lock (indexInvoker)
+                {
+                    indexInvoker.State.IndexDocument(doc);
+                    indexInvoker.Trigger();
+                }
             }
 
-            requestContext.RequestBlob.Position = 0;
-
-            return Task.FromResult(requestContext.RequestBlob);
+            return Task.FromResult(requestContext);
         }
 
         public IEnumerable<string> ListHosts()

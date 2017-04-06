@@ -15,47 +15,27 @@ namespace XProxy.Core.Converters
             return mime.Contains("json");
         }
 
-        public static TextTree Read(Stream data, Encoding encoding)
+        public static TextTree Read(TextReader reader)
         {
             var tree = new TextTree();
 
-            using (var reader = new StreamReader(data, encoding, true, 1024, true))
             {
+                bool startOfJsonFound = false;
+
+                while (true)
                 {
-                    int i = 0;
+                    var nextChar = reader.Peek();
 
-                    while (true)
+                    if (nextChar == -1) break;
+
+                    if (nextChar == '[' || nextChar == '{')
                     {
-                        var line = reader.ReadLine();
-
-                        if (line == null) return tree;
-
-                        if (string.IsNullOrWhiteSpace(line))
-                        {
-                            i++;
-                        }
-
-                        if (i > 1) // expecting 2 request + 2 response header lines
-                        {
-                            bool startOfJsonFound = false;
-
-                            while (!reader.EndOfStream)
-                            {
-                                var nextChar = reader.Peek();
-
-                                if (nextChar == '[' || nextChar == '{')
-                                {
-                                    startOfJsonFound = true;
-                                    break;
-                                }
-                            }
-
-                            if (!startOfJsonFound) return tree;
-
-                            break;
-                        }
+                        startOfJsonFound = true;
+                        break;
                     }
                 }
+
+                if (!startOfJsonFound) return tree;
 
                 //var jsonData = reader.ReadToEnd();
 

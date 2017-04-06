@@ -97,12 +97,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysers\Faults\HypotheticalFault.cs" />
     <Compile Include="Analysers\HttpComparer.cs" />
+    <Compile Include="Converters\PlainTextToTextTree.cs" />
+    <Compile Include="Converters\HtmlToTextTree.cs" />
     <Compile Include="IRequestStore.cs" />
     <Compile Include="IHttpLog.cs" />
     <Compile Include="Converters\JsonToTextTree.cs" />
     <Compile Include="Converters\OwinContextToTextTree.cs" />
     <Compile Include="Jobs\DiffEngine.cs" />
+    <Compile Include="Models\ICanPersist.cs" />
     <Compile Include="Models\TextTree.cs" />
     <Compile Include="Analysers\DeferredExecution.cs" />
     <Compile Include="Analysers\FaultAnalyser.cs" />
@@ -133,6 +137,8 @@
     <Compile Include="RequestAnalysisEngine.cs" />
     <Compile Include="Models\RequestContext.cs" />
     <Compile Include="Analysers\RequestStore.cs" />
+    <Compile Include="RequestKeyGenerator.cs" />
+    <Compile Include="SessionStore.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="WebPortal.cs" />
   </ItemGroup>

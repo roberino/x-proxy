@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace XProxy.Core.Models
 {
-    public class TextTree
+    public class TextTree : ICanPersist
     {
         public TextTree()
         {
@@ -17,7 +17,7 @@ namespace XProxy.Core.Models
 
         public IDictionary<string, TextTree> Children { get; private set; }
 
-        public async Task Write(Stream output)
+        public async Task WriteAsync(Stream output)
         {
             var json = JsonConvert.SerializeObject(this);
 
@@ -27,7 +27,15 @@ namespace XProxy.Core.Models
             }
         }
 
-        public static async Task<TextTree> ReadAsync(Stream input)
+        public async Task ReadAsync(Stream input)
+        {
+            var tree = await LoadAsync(input);
+
+            Properties = tree.Properties;
+            Children = tree.Children;
+        }
+
+        public static async Task<TextTree> LoadAsync(Stream input)
         {
             using (var reader = new StreamReader(input))
             {

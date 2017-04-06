@@ -46,10 +46,10 @@ namespace XProxy.Core.Analysers
                 }, x => Compare(x.host, x.path));
         }
 
-        public async Task<Stream> Run(RequestContext requestContext)
+        public async Task<RequestContext> Run(RequestContext requestContext)
         {
             await Task.FromResult(false);
-            return requestContext.RequestBlob;
+            return requestContext;
         }
 
         public async Task<TextTreeComparison> Compare(string host, string path, int max = 5)

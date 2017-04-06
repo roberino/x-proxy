@@ -1,29 +1,51 @@
 ﻿using LinqInfer.Data.Remoting;
-using System.IO;
 using System.Threading.Tasks;
 using XProxy.Core.Models;
 
-namespace XProxy.Core.Analysers
+namespace XProxy.Core.Analysers.Faults
 {
-    class FaultAnalyser : IRequestAnalyser, IHasHttpInterface
+    public class FaultAnalyser : IRequestAnalyser, IHasHttpInterface
     {
+        private readonly SessionStore _sessionStore;
+
+        public FaultAnalyser(SessionStore sessionStore)
+        {
+            _sessionStore = sessionStore;
+        }
+
         public void Register(IHttpApi api)
         {
         }
 
-        public async Task<Stream> Run(RequestContext requestContext)
+        public async Task<RequestContext> Run(RequestContext requestContext)
         {
-            if (requestContext.OwinContext.Response.Header.StatusCode >= 400)
-            {
-                await Analyse(requestContext);
-            }
+            await Analyse(requestContext);
 
-            return requestContext.RequestBlob;
+            return requestContext;
         }
 
-        private Task Analyse(RequestContext requestContext)
+        private async Task Analyse(RequestContext requestContext)
         {
-            return Task.FromResult(0);
+            var fault = new HypotheticalFault(requestContext.OriginUrl);
+
+            var file = RequestStore.GetPath(_sessionStore.BaseStorageDirectory, requestContext.OriginUrl, null, ".hypo");
+
+            if (file.Exists)
+            {
+                using (var fs = file.OpenRead())
+                {
+                    await fault.ReadAsync(fs);
+                }
+
+                // Look at HTTP status
+                // Compare request context to past requests - check diffs
+                // Compare to other hosts?
+            }
+
+            using (var fs = file.OpenWrite())
+            {
+                await fault.WriteAsync(fs);
+            }
         }
 
         public void Dispose()

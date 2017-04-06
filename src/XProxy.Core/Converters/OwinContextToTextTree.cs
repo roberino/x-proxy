@@ -26,17 +26,27 @@ namespace XProxy.Core.Converters
             root.Children["request"] = request;
             root.Children["response"] = response;
 
-            if (context.OwinContext.Response.HasContent && JsonToTextTree.CanHandle(context.OwinContext.Response.Header.ContentMimeType))
+            if (context.OwinContext.Response.HasContent)
             {
                 try
                 {
-                    if (context.RequestBlob.CanRead && context.RequestBlob.CanSeek)
+                    if (JsonToTextTree.CanHandle(context.OwinContext.Response.Header.ContentMimeType))
                     {
-                        context.RequestBlob.Position = 0;
-
-                        response.Children["body"] = JsonToTextTree.Read(context.RequestBlob, context.OwinContext.Response.Header.TextEncoding);
-
-                        context.RequestBlob.Position = 0;
+                        response.Children["body"] = JsonToTextTree.Read(context.CreateContentReader());
+                    }
+                    else
+                    {
+                        if (HtmlToTextTree.CanHandle(context.OwinContext.Response.Header.ContentMimeType))
+                        {
+                            response.Children["body"] = HtmlToTextTree.Read(context.CreateContentReader());
+                        }
+                        else
+                        {
+                            if (PlainTextToTextTree.CanHandle(context.OwinContext.Response.Header.ContentMimeType))
+                            {
+                                response.Children["body"] = PlainTextToTextTree.Read(context.CreateContentReader());
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

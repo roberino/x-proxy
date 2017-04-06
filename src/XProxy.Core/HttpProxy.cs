@@ -47,6 +47,13 @@ namespace XProxy.Core
             });
         }
 
+        private Uri GetTargetUri(Uri targetBase, Uri requestUri)
+        {
+            var targBaseTx = new Uri(requestUri.Scheme + Uri.SchemeDelimiter + targetBase.Host + ":" + targetBase.Port + targetBase.PathAndQuery);
+
+            return new Uri(targBaseTx, requestUri.PathAndQuery.Substring(1));
+        }
+
         private async Task ForwardContext(Guid id, IOwinContext context, Uri target, bool returnResponse = true)
         {
             var sw = new Stopwatch();
@@ -55,7 +62,7 @@ namespace XProxy.Core
 
             using (var client = new HttpClient())
             {
-                var fwdUri = new Uri(context.RequestUri.Scheme + Uri.SchemeDelimiter + target.Host + ":" + target.Port + context.RequestUri.PathAndQuery);
+                var fwdUri = GetTargetUri(target, context.RequestUri);
 
                 if (fwdUri.Scheme != Uri.UriSchemeHttp) return;
 
