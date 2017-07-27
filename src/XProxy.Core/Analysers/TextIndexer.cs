@@ -58,7 +58,7 @@ namespace XProxy.Core.Analysers
 
         public void Register(IHttpApi api)
         {
-            api.Bind("/{host}?search=x", Verb.Get, r => r.RequestUri.Scheme == Uri.UriSchemeHttp)
+            api.Bind("/{host}?search=x", Verb.Get, r => r.RequestUri.Scheme == UriHelper.UriSchemeHttp)
                 .To(new
                 {
                     host = string.Empty,
@@ -70,7 +70,7 @@ namespace XProxy.Core.Analysers
                     return Task.FromResult(results);
                 });
 
-            api.Bind("/logs/search?q=x", Verb.Get, r => r.RequestUri.Scheme == Uri.UriSchemeHttp)
+            api.Bind("/logs/search?q=x", Verb.Get, r => r.RequestUri.Scheme == UriHelper.UriSchemeHttp)
                 .To(string.Empty, QueryAsync);
         }
 

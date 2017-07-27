@@ -105,7 +105,7 @@ namespace XProxy.Core.Analysers
                 _runHandle.WaitOne();
 
                 _waitHandle.Dispose();
-                _worker.Dispose();
+                //_worker.Dispose();
             }
         }
 

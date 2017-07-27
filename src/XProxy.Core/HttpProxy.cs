@@ -54,9 +54,9 @@ namespace XProxy.Core
 
             using (var client = new HttpClient())
             {
-                var fwdUri = new Uri(context.RequestUri.Scheme + Uri.SchemeDelimiter + target.Host + ":" + target.Port + context.RequestUri.PathAndQuery);
+                var fwdUri = new Uri(context.RequestUri.Scheme + UriHelper.SchemeDelimiter + target.Host + ":" + target.Port + context.RequestUri.PathAndQuery);
 
-                if (fwdUri.Scheme != Uri.UriSchemeHttp) return;
+                if (fwdUri.Scheme != UriHelper.UriSchemeHttp) return;
 
                 var request = new HttpRequestMessage()
                 {

@@ -25,7 +25,7 @@ namespace XProxy.Core
             _worker = new Thread(Execute)
             {
                 IsBackground = true,
-                Priority = ThreadPriority.Lowest
+                //Priority = ThreadPriority.Lowest
             };
 
             _worker.Start();

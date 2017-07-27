@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "XProxy.DotNetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "\"http://localhost:8021\" \"http://web-matters.blogspot.co.uk\""
+    }
+  }
+}

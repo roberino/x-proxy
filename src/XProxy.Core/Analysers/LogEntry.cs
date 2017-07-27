@@ -90,9 +90,16 @@ namespace XProxy.Core.Analysers
                 res.Header.StatusCode.GetValueOrDefault(0),
                 requestContext.OriginUrl,
                 head.ContentLength,
-                res.Header.Headers["Content-Length"].FirstOrDefault(),
+                GetContentLength(requestContext),
                 GetMime(requestContext),
                 GetReferer(requestContext));
+        }
+
+        private static string GetContentLength(RequestContext requestContext)
+        {
+            string[] val;
+            if (requestContext.OwinContext.Response.Header.Headers.TryGetValue("Content-Length", out val) && val.Length > 0) return val.First();
+            return "0";
         }
 
         private static Uri TryParseUri(string uri)
@@ -135,7 +142,7 @@ namespace XProxy.Core.Analysers
                 {
                     try
                     {
-                        if (!referer1.Contains(Uri.SchemeDelimiter))
+                        if (!referer1.Contains(UriHelper.SchemeDelimiter))
                         {
                             return new Uri(requestContext.OriginUrl, referer1);
                         }

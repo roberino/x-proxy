@@ -156,7 +156,6 @@ namespace XProxy.Core.Analysers
 
         public void Dispose()
         {
-            _featureIndexStream.Close();
             _featureIndexStream.Dispose();
         }
     }

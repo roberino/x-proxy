@@ -72,7 +72,7 @@ namespace XProxy.Core.Analysers
 
         private async Task<SourceFile> GetRequestSource(string host, string path, Guid id)
         {
-            var uri = new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path);
+            var uri = new Uri(UriHelper.UriSchemeHttp + UriHelper.SchemeDelimiter + host + path);
             var fileInfo = GetPath(uri, id);
 
             if (!fileInfo.Exists)

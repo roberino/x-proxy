@@ -11,7 +11,7 @@ namespace XProxy.Core
 
         public WebPortal(Uri host) : base(host)
         {
-            _asm = Assembly.GetExecutingAssembly();
+            _asm = typeof(WebPortal).GetTypeInfo().Assembly;
         }
 
         protected override void Setup(IOwinApplication host)

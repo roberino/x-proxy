@@ -212,7 +212,6 @@ namespace XProxy.Core.Analysers
 
         public void Dispose()
         {
-            _logger.Close();
             _logger.Dispose();
         }
     }

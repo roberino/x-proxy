@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Timers;
+using System.Threading;
 
 namespace XProxy.Core
 {
@@ -8,6 +8,7 @@ namespace XProxy.Core
         private readonly Timer _timer;
         private readonly Action<T> _action;
         private readonly T _state;
+        private readonly TimeSpan _interval;
         private readonly Func<T, bool> _triggerCheck;
 
         private bool _isDirty;
@@ -17,24 +18,26 @@ namespace XProxy.Core
         {
             _action = action;
             _state = state;
+            _interval = interval.GetValueOrDefault(TimeSpan.FromMilliseconds(200));
 
-            _timer = new Timer(interval.GetValueOrDefault(TimeSpan.FromMilliseconds(200)).TotalMilliseconds);
-
-            _timer.Elapsed += OnFire;
-
+            _timer = new Timer(c =>
+            {
+                OnFire();   
+            }, true, TimeSpan.Zero, _interval);
+            
             _triggerCheck = triggerCheck == null ?
                 (_ => _isDirty) : (Func<T, bool>)(s => _isDirty || triggerCheck(s));
         }
 
         public IDisposable Pause()
         {
-            _timer.Enabled = false;
+            _timer.Change(Timeout.Infinite, 0);
             _isPaused = true;
 
             return new PauseState(() =>
             {
                 _isPaused = false;
-                _timer.Enabled = true;
+                _timer.Change(TimeSpan.Zero, _interval);
             });
         }
 
@@ -43,7 +46,8 @@ namespace XProxy.Core
         public void Trigger()
         {
             _isDirty = true;
-            if (!_isPaused) _timer.Enabled = true;
+            if (!_isPaused)
+                _timer.Change(TimeSpan.Zero, _interval);
         }
 
         public void Run()
@@ -53,7 +57,7 @@ namespace XProxy.Core
 
         public void Dispose()
         {
-            _timer.Stop();
+            _timer.Change(Timeout.Infinite, 0);
 
             if (_isDirty)
             {
@@ -63,16 +67,11 @@ namespace XProxy.Core
             _timer.Dispose();
         }
 
-        private void OnFire(object sender, ElapsedEventArgs e)
-        {
-            OnFire();
-        }
-
         private void OnFire()
         {
             if (_isPaused) return;
 
-            _timer.Enabled = false;
+            _timer.Change(Timeout.Infinite, 0);
 
             if (_triggerCheck(State))
             {
@@ -88,7 +87,7 @@ namespace XProxy.Core
 
                 if (_triggerCheck(State))
                 {
-                    _timer.Enabled = true;
+                    _timer.Change(TimeSpan.Zero, _interval);
                 }
             }
         }

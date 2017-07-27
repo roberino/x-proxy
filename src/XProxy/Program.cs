@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using XProxy.Core;
 
 namespace XProxy
@@ -16,11 +17,11 @@ namespace XProxy
             }
 
             var proxyUri = new Uri(args[0]);
-            var targetUris = args.Skip(1).Where(a => a.StartsWith("http://")).Select(a => new Uri(a)).ToArray();
-            var controlUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":9373");
-            var uiUri = new Uri(proxyUri.Scheme + Uri.SchemeDelimiter + proxyUri.Host + ":8080");
+            var targetUris = args.Skip(1).Where(a => Regex.IsMatch(a, @"^https?\:\/\/")).Select(a => new Uri(a)).ToArray();
+            var controlUri = new Uri(proxyUri.Scheme + "://" + proxyUri.Host + ":9373");
+            var uiUri = new Uri(proxyUri.Scheme + "://" + proxyUri.Host + ":8080");
 
-            var baseDir = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "data"));
+            var baseDir = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "data"));
 
             using (var startup = new Startup(baseDir, proxyUri, targetUris, controlUri, uiUri))
             {
