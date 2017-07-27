@@ -1,2 +1,5 @@
-"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe" /p:AllowUnsafeBlocks=true /m:8 /p:Configuration=Release "XProxy.sln"
-PAUSE
+dotnet restore "../src/XProxy.Core.DotNetCore.csproj"
+dotnet build -f netcoreapp1.1 "../src/XProxy.Core.DotNetCore.csproj"
+
+dotnet restore "../src/XProxy.DotNetCore.csproj"
+dotnet build -f netcoreapp1.1 "../src/XProxy.DotNetCore.csproj"
