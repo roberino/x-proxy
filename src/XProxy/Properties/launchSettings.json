@@ -2,7 +2,7 @@
   "profiles": {
     "XProxy.DotNetCore": {
       "commandName": "Project",
-      "commandLineArgs": "\"http://localhost:8021\" \"http://www.christine-eyres.com.au\""
+      "commandLineArgs": "\"http://0.0.0.0:8021\" \"http://www.christine-eyres.com.au\""
     }
   }
 }

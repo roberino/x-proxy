@@ -27,5 +27,8 @@
     <EmbeddedResource Include="wwwroot/**/*.js" />
     <EmbeddedResource Include="wwwroot/**/*.html" />
     <EmbeddedResource Include="wwwroot/**/*.css" />
+    <EmbeddedResource Include="wwwroot/**/*.woff" />
+    <EmbeddedResource Include="wwwroot/**/*.woff2" />
+    <EmbeddedResource Include="wwwroot/**/*.ttf" />
   </ItemGroup>
 </Project>
