@@ -5,7 +5,7 @@
 
 HTTP proxy for testing and API analysis.
 
-# Example usage
+## Example usage
 
 ```cs
 
@@ -23,7 +23,17 @@ using (var startup = new Startup(baseDir, "http://localhost:8001/", new [] { "ht
 // Traffic to http://localhost:8001/ will be proxied to http://my.site.url/
 // and viewed via http://localhost:8080/
 			
-``` 
+```
+
+## Running
+
+You can build and run the solution in docker using the shell script at the root of the solution:
+
+```bash
+
+./run-proxy-docker.sh www.your-target-hostname.com
+
+```
 
 # Acknowledgements...
 
