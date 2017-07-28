@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using XProxy.Core;
 
 namespace XProxy
@@ -27,25 +28,49 @@ namespace XProxy
             {
                 startup.Start();
 
-                while (true)
+                if (Console.IsInputRedirected)
                 {
-                    if (Console.ReadKey().Key == ConsoleKey.Spacebar)
+                    WaitForShutdown(() =>
                     {
-                        Console.WriteLine();
-                        Console.Write(startup);
-
-                        continue;
-                    }
-                    break;
+                        startup.Stop();
+                    });
                 }
+                else
+                {
+                    while (true)
+                    {
+                        if (Console.ReadKey().Key == ConsoleKey.Spacebar)
+                        {
+                            Console.WriteLine();
+                            Console.Write(startup);
 
-                startup.Stop();
+                            continue;
+                        }
+                        break;
+                    }
+
+                    startup.Stop();
+                }
             }
         }
 
         private static void PrintUsage()
         {
             Console.WriteLine("Usage: XProxy [proxy-url] [target-url1] [target-url2]...");
+        }
+
+        private static void WaitForShutdown(Action onShutdown)
+        {
+            var waitHandle = new ManualResetEventSlim(false);
+
+            System.Runtime.Loader.AssemblyLoadContext.Default.Unloading += c =>
+            {
+                onShutdown();
+
+                waitHandle.Set();
+            };
+
+            waitHandle.Wait();
         }
     }
 }
