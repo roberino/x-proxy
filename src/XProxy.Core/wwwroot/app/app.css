@@ -1,5 +1,9 @@
 /* app css stylesheet */
 
+ul.compare-list li {
+    list-style-type : none;
+}
+
 li.abn-tree-row.warning a {
     color: #ff6a00;
 }

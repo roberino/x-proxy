@@ -8,10 +8,46 @@
             <div class="modal-body">
                 <div ng-show="source1">
                     <h2>Compare {{compareStatus}}</h2>
-                    <!--<button class="btn btn-warning pull-right" ng-click="closeCompare()"><span class="glyphicon glyphicon-remove"> </span> Clear</button>-->
                     <p><strong>Source 1: {{source1.url}}</strong></p>
                     <p><strong>Source 2: {{source2.url}}</strong></p>
+                    <h3>Headers</h3>
                     <div style="overflow-y : scroll; max-height: 300px">
+                        <table class="table table-striped" ng-show="comparison">
+                            <tr>
+                                <th>Key</th>
+                                <th>Sample Size</th>
+                                <th>Differences</th>
+                                <th>Missing</th>
+                                <th>Score</th>
+                                <th>Variants</th>
+                            </tr>
+                            <tr><th colspan="6">Request headers</th></tr>
+                            <tr ng-repeat="item in comparison.request">
+                                <td><span ng-class="item.value.differences == 0 ? 'label-info' : 'label-danger'">{{item.key}}</span></td>
+                                <td>{{item.value.sampleSize}}</td>
+                                <td>{{item.value.differences}}</td>
+                                <td>{{item.value.missing}}</td>
+                                <td>{{item.value.score}}</td>
+                                <td>
+                                    <span ng-if="item.value.values.length != 2" ng-repeat="val in item.value.values">{{val}} </span>
+                                    <source-diff ng-if="item.value.values.length == 2" id="diff1" text1="item.value.values[0]" text2="item.value.values[1]"></source-diff>
+                                </td>
+                            </tr>
+                            <tr><th colspan="6">Reponse headers</th></tr>
+                            <tr ng-repeat="item in comparison.response">
+                                <td><span ng-class="item.value.differences == 0 ? 'label-info' : 'label-danger'">{{item.key}}</span></td>
+                                <td>{{item.value.sampleSize}}</td>
+                                <td>{{item.value.differences}}</td>
+                                <td>{{item.value.missing}}</td>
+                                <td>{{item.value.score}}</td>
+                                <td>
+                                    <span ng-if="item.value.values.length != 2" ng-repeat="val in item.value.values">{{val}} </span>
+                                    <source-diff ng-sh="item.value.values.length == 2" id="diff1" text1="item.value.values[0]" text2="item.value.values[1]"></source-diff>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h3>Raw source comparison</h3>
                         <source-diff id="diff1" text1="source1.content" text2="source2.content"></source-diff>
                     </div>
                 </div>

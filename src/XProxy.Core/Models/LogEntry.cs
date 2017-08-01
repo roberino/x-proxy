@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Xml;
 
-namespace XProxy.Core.Analysers
+namespace XProxy.Core.Models
 {
     public class LogEntry
     {

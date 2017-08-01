@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
-    class HttpLogger : IRequestAnalyser, IHasHttpInterface
+    class HttpLogger : IRequestAnalyser, IHasHttpInterface, IHttpLog
     {
         private const int DefaultReadSize = 4096 * 6;
         private readonly TextWriter _logger;
@@ -59,16 +60,16 @@ namespace XProxy.Core.Analysers
                 .To(1000d, x => GetHistogramGroupedByMime(x));
         }
 
-        public async Task<Stream> Run(RequestContext requestContext)
+        public async Task<RequestContext> Run(RequestContext requestContext)
         {
             await LogRequest(requestContext);
 
-            return requestContext.RequestBlob;
+            return requestContext;
         }
 
         public ResourceList<string> ListHosts()
         {
-            return new ResourceList<string>(_baseDir.GetDirectories().Select(d => d.Name));
+            return new ResourceList<string>(_baseDir.GetDirectories().Where(d => !d.Name.StartsWith("_")).Select(d => d.Name));
         }
 
         public async Task<DiscretizedSet<DateTime, TimeSpan, LogEntry>> GetHistogram(double span)

@@ -5,6 +5,8 @@ angular.module('xproxy', [
   'ngRoute',
   'xproxy.logs.table',
   'xproxy.logs.tree',
+  'xproxy.logs.compare',
+  'xproxy.logs.events',
   'xproxy.search',
   'xproxy.logexplorer',
   'xproxy.diff',

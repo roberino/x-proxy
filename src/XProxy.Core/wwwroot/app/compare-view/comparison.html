@@ -1,0 +1,37 @@
+<div>
+    <h2>Compare {{compareStatus}}</h2>
+    <p><strong>Source 1: {{source1.originHost}}{{source1.path}}</strong></p>
+    <p><strong>Source 2: {{source2.originHost}}{{source1.path}}</strong></p>
+    <h3>Headers</h3>
+    <div>
+        <form class="form-inline">
+            <div class="form-group-sm">
+                <label>
+                    Show only diffs
+                    <input class="form-control" type="checkbox" value="false" ng-model="showOnlyDiffs" />
+                </label>
+            </div>
+        </form>
+        <table class="table table-striped" ng-show="comparison">
+            <tr>
+                <th>Key</th>
+                <th>Sample Size</th>
+                <th>Differences</th>
+                <th>Missing</th>
+                <th>Score</th>
+                <th>Variants</th>
+            </tr>
+            <tr ng-repeat="item in comparison.request" ng-show="!showOnlyDiffs || item.value.differences > 0">
+                <td>{{item.key}}</td>
+                <td>{{item.value.sampleSize}}</td>
+                <td><span ng-class="item.value.differences == 0 ? 'label-info' : 'label-danger'">{{item.value.differences}}</span></td>
+                <td>{{item.value.missing}}</td>
+                <td>{{item.value.score}}</td>
+                <td>
+                    <span ng-if="item.value.values.length != 2" ng-repeat="val in item.value.values">{{val}} </span>
+                    <source-diff ng-if="item.value.values.length == 2" id="diff1" text1="item.value.values[0]" text2="item.value.values[1]"></source-diff>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

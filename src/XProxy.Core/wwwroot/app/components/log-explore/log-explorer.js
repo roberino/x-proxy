@@ -21,6 +21,49 @@ function initialiseService($http) {
         });
     }
 
+    function loadEventsFromApi(clientId, callback) {
+        var pathTemplate = "/events/$clientId";
+        var url = pathTemplate
+            .replace("$clientId", clientId);
+
+        corsRequest(url, callback);
+    }
+
+    function loadComparisonFromApi(req1, req2, callback) {
+        var pathTemplate = "/source/compare?host1=$1&host2=$2&path1=$3&path2=$4&id1=$5&id2=$6";
+        var url = pathTemplate
+            .replace("$1", req1.originHost)
+            .replace("$2", req2.originHost)
+            .replace("$3", req1.originPath)
+            .replace("$4", req2.originPath)
+            .replace("$5", req1.id)
+            .replace("$6", req2.id);
+
+        corsRequest(url, callback);
+    }
+
+    function loadHostComparisonFromApi(host1, host2, path, callback, flatten) {
+        var url = "";
+
+        if (host2 !== '-') {
+            var pathTemplate = "/source/compare/$1/$2?path=$3&flatten=$4";
+
+            url = pathTemplate
+                .replace("$1", host1)
+                .replace("$2", host2)
+                .replace("$3", path)
+                .replace("$4", flatten ? 'true' : 'false');
+        }   
+        else {
+            var pathTemplate = "/source/compare/$1?path=$2";
+
+            url = pathTemplate
+                .replace("$1", host1)
+                .replace("$2", path);
+        }
+        corsRequest(url, callback);
+    }
+
     function loadTimeHistogramFromApi(callback) {
         corsRequest("/logs/histogram/time-series/all/60000", callback);
     }
@@ -70,11 +113,14 @@ function initialiseService($http) {
 
     return {
         loadLogs: loadLogsFromApi,
+        loadComparison: loadComparisonFromApi,
+        loadHostComparison: loadHostComparisonFromApi,
         loadTree: loadTreeFromApi,
         loadTimeHistogram: loadTimeHistogramFromApi,
         loadTimeHistogramByMime: loadTimeHistogramByMimeFromApi,
         filterByPath: loadUrlFilterFromApi,
         loadSource: loadSourceFromApi,
+        loadEvents: loadEventsFromApi,
         search: searchFromApi,
         onSearch: onSearch,
         currentSearchText: function () { return currentSearch; }

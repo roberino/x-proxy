@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using XProxy.Core.Models;
 
 namespace XProxy.Core.Analysers
 {
@@ -45,7 +46,7 @@ namespace XProxy.Core.Analysers
             });
         }
 
-        public async Task<Stream> Run(RequestContext requestContext)
+        public async Task<RequestContext> Run(RequestContext requestContext)
         {
             var data = await _logger.GetRequestsByPartialUrl(requestContext.OriginUrl.ToString());
 
@@ -72,7 +73,7 @@ namespace XProxy.Core.Analysers
 
             await Write(vector);
 
-            return requestContext.RequestBlob;
+            return requestContext;
         }
 
         private async Task<IList<RequestVector>> Read()
@@ -110,13 +111,10 @@ namespace XProxy.Core.Analysers
 
         private async Task<IEnumerable<IToken>> Tokenise(RequestContext requestContext)
         {
-            using (var ms = new MemoryStream())
+            await Task.FromResult(false);
+
+            using (var ms = requestContext.GetRequestStream())
             {
-                await requestContext.RequestBlob.CopyToAsync(ms);
-
-                requestContext.RequestBlob.Position = 0;
-                ms.Position = 0;
-
                 if (ms.Length == 0) return Enumerable.Empty<IToken>();
 
                 switch (requestContext.OwinContext.Response.Header.ContentMimeType)
