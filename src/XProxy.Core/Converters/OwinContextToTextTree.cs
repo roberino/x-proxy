@@ -51,7 +51,7 @@ namespace XProxy.Core.Converters
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Debug.WriteLine(ex);
                 }
             }
 

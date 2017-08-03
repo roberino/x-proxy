@@ -102,7 +102,7 @@ namespace XProxy.Core.Analysers
 
         public async Task<IList<TextTree>> GetRequestSourceTrees(string host, string path, int max = 5)
         {
-            var paths = FindPaths(new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path), ".json");
+            var paths = FindPaths(new Uri(UriHelper.UriSchemeHttp + UriHelper.SchemeDelimiter + host + path), ".json");
 
             var streams = paths.OrderByDescending(p => p.LastAccessTimeUtc).Where(p => p.Length > 0).Take(max).Select(p => p.OpenRead()).ToList();
 
@@ -117,7 +117,7 @@ namespace XProxy.Core.Analysers
 
         public async Task<TextTree> GetRequestSourceTree(string host, string path, Guid id)
         {
-            var uri = new Uri(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host + path);
+            var uri = new Uri(UriHelper.UriSchemeHttp + UriHelper.SchemeDelimiter + host + path);
             var fileInfo = GetPath(uri, id, ".json");
 
             if (!fileInfo.Exists)

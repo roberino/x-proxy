@@ -49,7 +49,7 @@ namespace XProxy.Core
 
         private Uri GetTargetUri(Uri targetBase, Uri requestUri)
         {
-            var targBaseTx = new Uri(requestUri.Scheme + Uri.SchemeDelimiter + targetBase.Host + ":" + targetBase.Port + targetBase.PathAndQuery);
+            var targBaseTx = new Uri(requestUri.Scheme + UriHelper.SchemeDelimiter + targetBase.Host + ":" + targetBase.Port + targetBase.PathAndQuery);
 
             return new Uri(targBaseTx, requestUri.PathAndQuery.Substring(1));
         }

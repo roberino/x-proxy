@@ -20,12 +20,14 @@ namespace XProxy.Core
 
         public void AllowOrigin(Uri origin)
         {
+            //_host.AllowOrigin(GetHostFilter(origin));
+
             _host.AddComponent(c =>
             {
                 c.Response.Header.Headers["Access-Control-Allow-Credentials"] = new[] { "true" };
                 c.Response.Header.Headers["Access-Control-Allow-Origin"] = new[] { GetHostFilter(origin) };
                 c.Response.Header.Headers["Access-Control-Allow-Methods"] = new[] { "GET, POST, PUT, DELETE, OPTIONS" };
-                c.Response.Header.Headers["Access-Control-Allow-Headers"] = new[] { "Content-Type,X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5,  Date, X-Api-Version, X-File-Name" };
+                c.Response.Header.Headers["Access-Control-Allow-Headers"] = new[] { "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5,  Date, X-Api-Version, X-File-Name" };
 
                 if (c.Request.Header.HttpVerb == "OPTIONS")
                 {
@@ -42,6 +44,7 @@ namespace XProxy.Core
 
             return origin.Scheme + "://" + host + ':' + origin.Port;
         }
+
         public virtual void Dispose()
         {
             _host.Dispose();
